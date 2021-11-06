@@ -1,0 +1,131 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+{% include "topbar.html" %}
+{% endblock %}
+
+{% block menu %}
+{% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Heading -->
+<h1 class="h3 mb-2 text-gray-800">Administración - Campañas</h1>
+<p class="mb-4">
+   <a href="{{ url_for('admin.campaigns') }}">Campañas</a> / 
+   <a href="#"> Seleccion establecimientos</a>
+</p>
+
+{% if msg_discard_success %}
+<div class="alert alert-success" role="alert">
+   {{msg_discard_success | safe}}
+</div>
+{% endif %}
+
+<form class="user text-center" action="{{ url_for('admin.campaigns_select_institutions', selected_client_id=client.id) }}" method="POST">
+   <input type='hidden' name='campaign' value='{{campaign_id}}'>
+   <input type='hidden' name='client' value='{{client}}'>
+   <div class="card mb-4">
+      <div class="card-body">
+         <div class="row">
+            <div class="my-2">
+               <button class="btn btn-primary btn-icon-split btn-sm py-1 px-1">Agregar establecimientos</button>
+               <span class="icon text-white-50">
+                  <i class="fas fa-plus"></i>
+               </span>
+               </button>
+            </div>
+         </div>
+      </div>
+   </div>
+</form>
+   {% if institution_delete_name %}
+   <div class="alert alert-success" role="alert">
+      Se ha eliminado el registro <strong>{{institution_delete_name}}</strong> correctamente.
+   </div>
+   {% endif %}
+
+   <!-- DataTales Example -->
+   <div class="card shadow mb-4">
+      <div class="card-header py-3">
+         <h6 class="m-0 font-weight-bold text-primary">Listado de establecimientos de {{client}}</h6>
+      </div>
+      <div class="card-body">
+         <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+               <thead>
+                  <tr>
+                     <th>#</th>
+                     <th>Nombre</th>
+                     <th>Dirección</th>
+                     <th>Estado actual</th>
+                     <th>Comuna</th>
+                     <th>Cliente</th>
+                     <th></th>
+                  </tr>
+               </thead>
+               <tfoot>
+                  <tr>
+                     <th>#</th>
+                     <th>Nombre</th>
+                     <th>Dirección</th>
+                     <th>Estado actual</th>
+                     <th>Comuna</th>
+                     <th>Cliente</th>
+                     <th></th>
+                  </tr>
+               </tfoot>
+               <tbody>
+                  {% for institution in institutions %}
+                  <tr>
+                     <td>{{ loop.index }}</td>
+                     <td>{{ institution.name }}</td>
+                     <td>{{ institution.address }}</td>
+                     <td>{{ institution.status }}</td>
+                     <td>{{ institution.commune }}</td>
+                     <td>{{ institution.client }}</td>
+                     <td>
+                        <form action="#" method="POST">
+                           <input type='hidden' name='institution_id' value='{{institution.id}}'>
+                           <input type='hidden' name='campaign_id' value='{{campaign_id}}'>
+                           <a href="#" class="btn btn-danger btn-sm" data-target="#eliminarEstablecimientoModal_{{institution.id}}" data-toggle="modal">Quitar</button>
+                        </form>
+                     </td>
+                  </tr>
+
+                  <!-- Communes Modal-->
+                  <!-- {{ url_for('admin.campaigns_discard_institution') }} -->
+                  <div class="modal fade" id="eliminarEstablecimientoModal_{{institution.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                     aria-hidden="true">
+                     <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                           <div class="modal-header">
+                              <h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
+                              <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                 <span aria-hidden="true"></span>
+                              </button>
+                           </div>
+                           <div class="modal-body">
+                           ¿Seguro(a) que quiere quitar este registro de la campaña?<br><br>
+                           {{institution.name}}
+                           </div>
+                           <div class="modal-footer">
+                              <form action="{{ url_for('admin.campaigns_institutions', id = campaign_id) }}" method="POST">
+                                 <input type='hidden' name='institution_id' value='{{institution.id}}'>
+                                 <input type='hidden' name='institution_name' value='{{institution.name}}'>
+                                 <input type='hidden' name='campaign_id' value='{{campaign_id}}'>
+                                 <a href="#" class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</a>
+                                 <button class="btn btn-primary">Confirmar</button>
+                              </form>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  {% endfor %}
+               </tbody>
+            </table>
+         </div>
+      </div>
+   </div>
+{% endblock %}

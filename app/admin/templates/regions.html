@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+{% include "topbar.html" %}
+{% endblock %}
+
+{% block menu %}
+{% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Heading -->
+<h1 class="h3 mb-2 text-gray-800">Administración - Regiones</h1>
+<p class="mb-4"><a href="{{ url_for('admin.communes') }}">Regiones</a></p>
+
+<br><br>
+
+<!-- DataTales Example -->
+<div class="row">
+   <div class="col-lg-12">
+      <div class="card shadow mb-4">
+         <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Lista de regiones</h6>
+         </div>
+         <div class="card-body">
+            <div class="table-responsive">
+               <table class="table" id="dataTable" width="100%" cellspacing="0">
+                     <thead>
+                        <tr>
+                           <th>#</th>
+                           <th>Nombre</th>
+                           <th>Abreviatura</th>
+                           <th>Capital</th>
+                        </tr>
+                     </thead>
+                     <tfoot>
+                        <tr>
+                           <th>#</th>
+                           <th>Nombre</th>
+                           <th>Abreviatura</th>
+                           <th>Abreviatura</th>
+                        </tr>
+                     </tfoot>
+                     <tbody>
+                        {% for region in regions %}
+                        <tr>
+                           <td>{{ loop.index }}</td>
+                           <td>{{ region.name }}</td>
+                           <td>{{ region.abbreviation }}</td>
+                           <td>{{ region.capital }}</td>
+                        </tr>
+                        {% endfor %}
+                     </tbody>
+               </table>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{% endblock %}

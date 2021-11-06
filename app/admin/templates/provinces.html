@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+{% include "topbar.html" %}
+{% endblock %}
+
+{% block menu %}
+{% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Heading -->
+<h1 class="h3 mb-2 text-gray-800">Administración - Provincias</h1>
+
+<br><br>
+
+<!-- DataTales Example -->
+<div class="row">
+   <div class="col-lg-12">
+      <div class="card shadow mb-4">
+         <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Lista de regiones</h6>
+         </div>
+         <div class="card-body">
+            <div class="table-responsive">
+               <table class="table" id="dataTable" width="100%" cellspacing="0">
+                     <thead>
+                        <tr>
+                           <th>#</th>
+                           <th>Provincia</th>
+                           <th>Región</th>
+                        </tr>
+                     </thead>
+                     <tfoot>
+                        <tr>
+                           <th>#</th>
+                           <th>Provincia</th>
+                           <th>Región</th>
+                        </tr>
+                     </tfoot>
+                     <tbody>
+                        {% for province in provinces %}
+                        <tr>
+                           <td>{{ loop.index }}</td>
+                           <td>{{ province.name }}</td>
+                           <td>{{ province.regions }}</td>
+                        </tr>
+                        {% endfor %}
+                     </tbody>
+               </table>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{% endblock %}

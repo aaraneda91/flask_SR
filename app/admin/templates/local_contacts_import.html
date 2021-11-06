@@ -1,0 +1,164 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+{% include "topbar.html" %}
+{% endblock %}
+
+{% block menu %}
+{% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<h1 class="h3 mb-2 text-gray-800">Administración - Establecimientos</h1>
+<p class="mb-4">
+   <a href="{{ url_for('admin.institutions') }}">Establecimientos</a> / 
+   <a href="{{ url_for('admin.local_contacts') }}">Contactos locales</a> / 
+   <a href="{{ url_for('admin.local_contacts_import') }}"> Importar</a> 
+   {% if data_xls_import %}
+   <a href="#">/ Confirmación</a>
+   {% endif %}
+</p>
+
+<div class="row">
+   <div class="col-xl-5 col-lg-6">
+
+      <div class="card o-hidden border-0 shadow-sm my-2">
+         <div class="card-body p-0">
+            <div class="row">
+               <div class="col-lg-12 d-none d-lg-block">
+                  <div class="p-5">
+                     <div class="text-center">
+                        <h1 class="h5 text-gray-900 mb-4">IMPORTACIÓN DE CONTACTOS LOCALES</h1>
+                     </div>
+                     <form class="user text-center" action="{{ url_for('admin.local_contacts_preview') }}" method="POST" enctype="multipart/form-data">
+                     {{ form.hidden_tag() }}
+                        <div class="form-group row">
+                           <div class="col-sm-6 mb-3 mb-sm-0 text-left">
+                              <a id="download" class="btn btn-success btn-sm" href="{{ url_for('static', filename='download/formato_importacion_contactos_locales.xlsx') }}"> DESCARGAR ARCHIVO TEMPLATE</a>
+                           </div>
+                        </div>
+
+                        <div class="form-group row">
+                           <div class="col-sm-6 mb-3 mb-sm-0 text-left">
+                              <label for="inputClient">Cliente:</label>
+                              {{ render_field(form.client, class="form-control form-control-user") }}
+                           </div>
+                        </div>
+
+                        <div class="form-group row text-left">
+                           <div class="col-sm-12 mb-3 mb-sm-0">
+                              {{ render_field(form.upload, class="form-control-file form-control-user") }}
+                           </div>
+                        </div>
+                        <button class="btn btn-primary btn-user btn-block">Importar</button>
+                     </form>
+                  </div>
+               </div> <!-- fila (izquierda) -->
+            </div>
+         </div>
+      </div>
+   </div>
+{% if data_xls_import %}
+   <div class="col-xl-5 col-lg-6 text-bottom">
+      <div class="card o-hidden border-0 shadow-sm my-2">
+         <div class="card-body p-0">
+            <div class="row">
+               <div class="col-lg-12 d-none d-lg-block">
+                  <div class="p-5">
+                     <div class="text-center">
+                       <div class="col-lg-8 d-none d-lg-block"> <!-- fila derecha -->
+                           <form action="{{ url_for('admin.local_contacts_import_confirm') }}" method="POST">
+                           ¿Desea confirmar la importación de estos <strong>{{count_contacts | safe }}</strong> contactos para el cliente <strong>{{cliente}}</strong>. <br> <br>
+                           <button class="btn btn-success btn-user btn-block">Confirmar</button>
+                           </form>
+                        </div>
+                     </div>
+                  </div>
+               </div> <!-- fila (izquierda) -->
+            </div>
+         </div>
+      </div>
+   </div>
+   {% endif %}
+
+   {% if import_finished %}
+   <div class="col-xl-5 col-lg-6 text-bottom">
+      <div class="card o-hidden border-0 shadow-sm my-2">
+         <div class="card-body p-0">
+            <div class="row">
+               <div class="col-lg-12 d-none d-lg-block">
+                  <div class="text-center">
+                     <h1 class="h4 text-gray-900 mb-4">Resultados de la importación</h1>
+                  </div>
+                  <div class="p-3">
+                     <div class="text-center">
+                       <div class="col-lg-12 d-none d-lg-block"> <!-- fila derecha -->
+                           <div class="alert alert-success" role="alert">
+                              Se importaron exitosamente <strong>{{local_contact_registered}}</strong> contactos.
+                           </div>
+
+                           {% if institutions_repeated %} <!-- establecimientos repetidos -->
+
+                              <table class="table table-bordered text-left">
+                                 <tr><th>Establecimiento</th></tr>
+                              {% for institution in institutions_repeated %}
+                                 <tr><td>{{ institution }}</td></tr>
+                              {% endfor %}
+                              </table>
+
+                           {% endif %}
+                           
+                           {% if no_institution %} <!-- establecimientos no registradas -->
+
+                           <div class="alert alert-warning text-left" role="alert">
+                              Contactos no registrados por <b>establecimientos</b> no encontrados para el cliente <strong>{{client}}</strong>:
+                           </div>
+                           <table class="table table-bordered text-left">
+                              <tr>
+                                 <th>Establecimiento</th>
+                                 <th>Nombre</th>
+                                 <th>Teléfono</th>
+                                 <th>Correo</th>
+                              </tr>
+                           {% for data in no_institution %}
+                              <tr>
+                                 <td>{{ data.institution }} </td> 
+                                 <td>{{ data.name }} </td>
+                                 <td>{{ data.phone }} </td>
+                                 <td>{{ data.email }} </td>
+                              </tr>
+                           {% endfor %}
+                           </table>
+                           {% endif %}
+                           
+                        </div>
+                     </div>
+                  </div>
+               </div> <!-- fila (izquierda) -->
+            </div>
+         </div>
+      </div>
+   </div>
+   {% endif %}
+
+<div class="card o-hidden border-0 shadow-sm my-2">
+</div>
+{% if data_xls_import %}
+<div class="card shadow-sm mb-4">
+   <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">Contactos a importar</h6>
+   </div>
+   <div class="card-body">
+      <div class="table-responsive">
+         {{ data_xls_import | safe}}
+      </div>
+   </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block script %}
+    {% include "admin_scripts.html" %}
+{% endblock %}

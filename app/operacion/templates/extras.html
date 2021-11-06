@@ -1,0 +1,142 @@
+
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link active" href="#" data-target="#observaciones_{{campaign.institution.id}}" data-toggle="tab">Observaciones</a>
+    </li>
+    {% if current_user.category.name != 'coordinador' or phase3 == 'active' or phase4 == 'active' or phase5 == 'active'%}
+    <li class="nav-item">
+        <a class="nav-link" href="#" data-target="#archivos_{{campaign.institution.id}}" data-toggle="tab">Archivos</a>
+    </li>
+    {% endif %}
+</ul>
+
+<!-- OBSERVACIONES -->
+<div class="tab-content container">
+    <div id="observaciones_{{campaign.institution.id}}" class="tab-pane active">
+        <br>
+        <form id="form_add_observation_{{campaign.institution.id}}" data-campaign="{{campaign.institution.id}}">
+            <!-- PERMISOS INGRESAR OBSERVACIÓN -->
+            {% if current_user.is_admin or
+                (phase2 == 'active' and current_user.category.name in('agente_mda_back','jefe_mda_back','agente_n1')) or
+                (phase3 == 'active' and current_user.category.name in('coordinador') ) or 
+                (phase4 == 'active' and current_user.category.name in('agente_mda_back','jefe_mda_back','agente_n1')) or
+                (phase5 == 'active' and current_user.category.name in('agente_mda_back','jefe_mda_back') ) %}
+            <div class="row">
+                <div class="col-md-10">
+                    <input type="text" class="form-control" id="observacion" name="observacion" placeholder="Ingrese Observacion">
+                </div>
+                <div class="col-md-2">
+                    <button id="submit_form_add_observation" class="btn btn-primary">Ingresar</button>
+                </div>
+            </div>
+            {% endif %}
+        </form>
+        <br>
+        <div id="observation_list_{{campaign.institution.id}}">
+            <ul id="timeline_{{campaign.institution.id}}" class="timeline">
+            </ul>
+        </div>
+        <br>
+    </div>
+
+    <!-- ARCHIVOS -->
+    {% if current_user.category.name != 'coordinador' or 
+    phase3 == 'active' or 
+    phase4 == 'active' or 
+    phase5 == 'active' %}
+    <div id="archivos_{{campaign.institution.id}}" class="tab-pane">
+        <br>
+        <form id="form_add_file_{{campaign.institution.id}}" data-campaign="{{campaign.institution.id}}" enctype="multipart/form-data">
+            <!-- PERMISOS SUBIR ARCHIVOS -->
+            {% if current_user.is_admin or
+                    (phase2 == 'active' and current_user.category.name in ('agente_mda_back','jefe_mda_back')) or
+                    (phase3 == 'active' and current_user.category.name in ('coordinador')) or
+                    (phase4 == 'active' and current_user.category.name in ('agente_mda_back','jefe_mda_back')) or
+                    (phase5 == 'active' and current_user.category.name in ('agente_mda_back')) %}
+            <div class="row">
+                <div class="custom-file col-md-10">
+                    <input type="file" class="custom-file-input" name="file" id="add_file_{{campaign.institution.id}}" lang="es">
+                    <label class="custom-file-label" for="add_file_{{campaign.institution.id}}" data-browse="Elegir">Seleccionar Archivo</label>
+                </div>
+                <div class="col-md-2">
+                    <button id="submit_form_add_file" class="btn btn-primary">Cargar Archivo</button>
+                </div>
+            </div>
+            {% endif %}
+        </form>
+        <br>
+        {% if current_user.is_admin or
+            (phase1 == 'active' and current_user.category.name in ('agente_mda_back','jefe_mda_back','agente_n1','director_servicio')) or 
+            (phase2 == 'active' and current_user.category.name in ('agente_mda_back','jefe_mda_back','agente_n1','director_servicio')) or 
+            (phase3 == 'active' and current_user.category.name in ('coordinador')) or
+            (phase4 == 'active' and current_user.category.name in ('agente_mda_back','jefe_mda_back','agente_n1','director_servicio','coordinador')) or
+            (phase5 == 'active' and current_user.category.name in ('agente_mda_back','jefe_mda_back','agente_n1','director_servicio','coordinador')) %}
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" data-target="#current_period_{{campaign.institution.id}}" data-toggle="tab">Periodo Actual</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-target="#previous_period_{{campaign.institution.id}}" data-toggle="tab">Periodo Anterior</a>
+            </li>
+        </ul>
+
+        <div class="tab-content container">
+            <div id="current_period_{{campaign.institution.id}}" class="tab-pane active">
+                <br>
+                <table id="files_current_period_list_{{campaign.institution.id}}" class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Periodo</th>
+                            <th scope="col">Archivo</th>
+                            <th scope="col">Cargado Por</th>
+                            <th scope="col">Estado</th>
+                            {% if current_user.is_admin %}
+                            <th scope="col">Eliminar</th>{% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div id="previous_period_{{campaign.institution.id}}" class="tab-pane">
+                <br>
+                <table id="files_previous_period__list_{{campaign.institution.id}}" class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Periodo</th>
+                            <th scope="col">Archivo</th>
+                            <th scope="col">Cargado Por</th>
+                            <th scope="col">Estado</th>
+                            {% if current_user.is_admin %}
+                            <th scope="col">Eliminar</th>{% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+<script>
+{% if campaign.institution.id %}
+$("#select_exitoso_observaciones_{{campaign.institution.id}}").change(function() {
+
+    if ($("#select_exitoso_observaciones_{{campaign.institution.id}}").val() == 14 || 
+    $("#select_exitoso_observaciones_{{campaign.institution.id}}").val() == 11 || 
+    $("#select_exitoso_observaciones_{{campaign.institution.id}}").val() == 12)
+    {
+    $("#required_comment_{{campaign.institution.id}}").show()
+    $("#required_comment_{{campaign.institution.id}}").attr("required", "required")
+    } else {
+    $("#required_comment_{{campaign.institution.id}}").hide()
+    $("#required_comment_{{campaign.institution.id}}").removeAttr('required')
+    }
+})
+{% endif %}
+</script>

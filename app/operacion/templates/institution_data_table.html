@@ -1,0 +1,51 @@
+<div class="row">
+    <div class="col-md-5">
+        <div class="form-group">
+            <label for="message-text" class="col-form-label"><strong>Estado:</strong></label> {{institution.status}}<br>
+            <label for="message-text" class="col-form-label"><strong>Cambio de estado:</strong></label>
+            {% for date_status in campaign.log_institution_status %}
+                {% if loop.last %}
+                {{date_status.created | datetimefilter }}
+                {% endif %}
+            {% endfor %}<br>
+            <label for="message-text" class="col-form-label"><strong>Establecimiento:</strong></label> {{institution.name}}<br>
+            <label for="message-text" class="col-form-label"><strong>Cliente:</strong></label> {{institution.client}}<br>
+            <label for="message-text" class="col-form-label"><strong>Comuna:</strong></label> {{institution.commune}}<br>
+            <label for="message-text" class="col-form-label"><strong>Dirección:</strong></label> {{institution.address}}<br>
+            <label for="message-text" class="col-form-label"><strong>Director de servicios:</strong></label>
+            {% for row in directors %}
+            {% if  institution.client.id == row.clients_id %} {{row.directors.name}} {{row.directors.lastname}} (<a href="mailto: {{row.directors.email}}">{{row.directors.email}}</a>){% endif %}
+            {% endfor %}
+            
+        </div>
+    </div>
+    <div class="col-md-7">
+        <table class="table table-striped table-bordered" >
+            <thead>
+            <tr>
+                <th scope="col">Tipo Enlace</th>
+                <th scope="col">Tipo Conexión</th>
+                <th scope="col">Código Servicio</th>
+                <th scope="col">Dirección IP</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for link in institution.links %}
+                    <tr>
+                        <td>{{ link.link_type }}</td>
+                        <td>{{ link.connection_type }}</td>
+                        <td>{{ link.service_code }}</td>
+                        <td>{{ link.ip_direction }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

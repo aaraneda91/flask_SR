@@ -1,0 +1,17 @@
+<script>
+$('#form_link_register_client_id').on('change', function(){
+   changeInstitutionsList( $('#form_link_register_client_id').val())
+})
+
+function changeInstitutionsList(client_id){
+   window.location.href = "{{ url_for('admin.links_register',client_id='0') }}".replace("0", client_id)
+}
+
+$('#inputClient').on('change', function(){
+   changeInstitutionsListLocalContact( $('#inputClient').val())
+})
+
+function changeInstitutionsListLocalContact(client_id){
+   window.location.href = "{{ url_for('admin.local_contacts_import',client_id='0') }}".replace("0", client_id)
+}
+</script> 

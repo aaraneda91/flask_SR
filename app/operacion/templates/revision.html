@@ -1,0 +1,238 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+{% include "topbar.html" %}
+{% endblock %}
+
+{% block menu %}
+{% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<!-- MODAL EXITO -->
+<div class="modal fade" id="modalMsgSuccessRevision" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Operación exitosa</h5>
+        </div>
+        <div class="modal-body">
+            <div class="form-group row">
+                <div class="col-md-12 ">
+                    Usuarios asignados correctamente y estado actualizado a <b>En revisión</b>.
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Aceptar</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <ul class="nav nav-tabs card-header-tabs nav-fill">
+            <li class="nav-item">
+                <a class="nav-link {{phase1}}" href="{{ url_for('operacion.phase1') }}">Gestión</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{phase2}}" href="{{ url_for('operacion.phase2') }}">Revisión</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{phase3}}" href="{{ url_for('operacion.phase3') }}">Coordinación</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{phase4}}" href="{{ url_for('operacion.phase4') }}">Ejecución</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{phase4}}" href="{{ url_for('operacion.phase5') }}">Terminados</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- MODAL ASIGNAR USUARIOS -->
+    <div class="modal fade" id="assingUser" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Operación exitosa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <div class="col-md-12 ">
+                        <label for="user" class="col-form-label col-sm-6">Seleccionar usuario:</label>
+                        <select name='user' class="form-control form-control-user col-sm-6" autocomplete="off" required id="user_assign">
+                            <option value="" disabled selected>Usuarios</option>
+                            {% for user in users %}
+                                <option value="{{user.id}}">{{ user.name }} {{ user.lastname }} ({{ user.username }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btn_confirm_assign_user_revision">Seleccionar</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <a href="#" class="btn btn-warning btn-icon-split btn-sm my-3 mx-1" data-toggle="modal" data-target="#assingUser" id="btn_assign_user" style="display:none">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-arrow-right"></i>
+                            </span>
+                            <span class="text">Asignar usuario</span>
+                        </a>
+                    </tr>
+                    <tr>
+                        <th>
+                            <input type="checkbox" name="selectall" autocomplete="off" id="select_all_revision">
+                        </th>
+                        <th>Cliente</th>
+                        <th>Establecimiento</th>
+                        <th>Comuna</th>
+                        <th>Estado</th>
+                        <th>Dias Estado</th>
+                        <th>Usuario Asignado</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th></th>
+                        <th>Cliente</th>
+                        <th>Establecimiento</th>
+                        <th>Comuna</th>
+                        <th>Estado</th>
+                        <th>Dias Estado</th>
+                        <th>Usuario Asignado</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    {% for campaign in campaigns %}
+                    <tr>
+                        <td><input type="checkbox" value='{{ campaign.id }}' name='chk_institutions_{{campaign.id}}' class="checkbox"></td>
+                        <td>{{campaign.institution.client}}</td>
+                        <td>{{campaign.institution.name}}</td>
+                        <td>{{campaign.institution.commune}}</td>
+                        <td>{{campaign.institution.status}}</td>
+                        <td>
+                            {% for date_status in campaign.log_institution_status %}
+                            {% if loop.last %}
+                            {{date_status.return_days(date_status.created)}}
+                            {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% if campaign.institution.user != None: %}
+                            {{campaign.institution.user.name}} {{campaign.institution.user.lastname}}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modalDetailInstitution_{{ campaign.institution.id }}">
+                                <i class="fas fa-edit fa-sm"></i>
+                            </a>
+
+                            <!-- Modal asignar usuarios -->
+
+                            <div class="modal fade modaldetailinstitution" id="modalDetailInstitution_{{ campaign.institution.id }}" data-campaign="{{campaign.institution.id}}" tabindex="-1" role="dialog" aria-labelledby="modalDetailInstitution_{{ campaign.institution.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-scrollable modal-xl modal-dialog-centered" role="document">
+                                    <div class="modal-content py-3 px-3">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="modalDetailInstitution_{{ campaign.institution.id }}">{{ campaign.institution.name }}</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            {% with institution=campaign.institution %}
+                                                {% include "institution_data_table.html" %}
+                                            {% endwith %}
+                                            <hr>
+                                            {% if campaign.institution.status_id in(2,3) %}
+                                                {% if current_user.category.name in ('agente_mda_back','jefe_mda_back') or current_user.is_admin == True %}
+                                                <form method='POST' action="{{ url_for('operacion.assign_user') }}">
+                                                    <input type='hidden' name='institution' value='{{ campaign.institution.id }}'>
+                                                    <input type='hidden' name='from_status' value='{{ campaign.institution.status_id }}'>
+                                                    <input type='hidden' name='institution_campaign' value='{{ campaign.id }}'>
+
+                                                    <div class="form-group row">
+                                                        <div class="col-md-10 ">
+                                                            <label for="user" class="col-form-label col-sm-2">Asignar usuario:</label>
+                                                            <select name='user' class="form-control form-control-user" autocomplete="off" required>
+                                                                <option value="" disabled selected>Seleccione un usuario</option>
+                                                                {% for user in users %}
+                                                                    <option value="{{user.id}}" {% if campaign.institution.user_id == user.id %}selected{% endif %}>{{ user.name }} {{ user.lastname }} ({{ user.username }})</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-2 align-self-end">
+                                                            <input type="submit" class="btn btn-primary" value="Asignar">
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                                {% endif %}
+                                            {% endif %}
+
+                                            {% if campaign.institution.status_id == 3 %}
+
+                                                <!-- CAMBIOS DE ESTADO: APTO - ESCALADO - INCIDENTE -->
+                                                {% if current_user.is_admin or current_user.id == campaign.institution.user.id %}
+                                                <form method='POST' action="{{ url_for('operacion.change_status_post') }}">
+
+                                                    <input type='hidden' name='institution' value='{{ campaign.institution.id }}'>
+                                                    <input type='hidden' name='institution_campaign' value='{{ campaign.id }}'>
+
+                                                    <div class="form-group row">
+                                                        <div class="col-md-3">
+                                                            <select id="status" data-campaign="{{campaign.institution.id}}" name='status' class="form-control form-control-user" autocomplete="off">
+                                                                <option value='7'>Apto</option>
+                                                                <option value='5'>Escalado</option>
+                                                                <option value='6'>Incidente</option>
+                                                            </select>
+                                                        </div>
+                                                        <div id="ticket_ar_div" class="col-md-4">
+                                                            
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <button class="btn btn-primary">Cambiar estado</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                                {% endif %}
+                                            {% endif %}
+
+                                            {% include "extras.html" %}
+
+                                        </div>
+                                        <div class="modal-footer">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Fin modal -->
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+    {% include "scripts.html" %}
+{% endblock %}

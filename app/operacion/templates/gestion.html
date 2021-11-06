@@ -1,0 +1,163 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+{% include "topbar.html" %}
+{% endblock %}
+
+{% block menu %}
+{% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<!-- MODAL EXITO ASIGNAR USUARIOS -->
+<div class="modal fade" id="modalMsgSuccessGestion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Operación exitosa</h5>
+        </div>
+        <div class="modal-body">
+            <div class="form-group row">
+                <div class="col-md-12 " id="resultMsg">
+                <!-- Contenido: ./app/static/js/scripts_gestion.js -->
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Aceptar</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <ul class="nav nav-tabs card-header-tabs nav-fill">
+            <li class="nav-item">
+                <a class="nav-link {{phase1}}" href="{{ url_for('operacion.phase1') }}">Gestión</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{phase2}}" href="{{ url_for('operacion.phase2') }}">Revisión</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{phase3}}" href="{{ url_for('operacion.phase3') }}">Coordinación</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{phase4}}" href="{{ url_for('operacion.phase4') }}">Ejecución</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{phase5}}" href="{{ url_for('operacion.phase5') }}">Terminados</a>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <a href="#" class="btn btn-warning btn-icon-split btn-sm my-3 mx-1" style="display:none" id="btn_send_revision">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-arrow-right"></i>
+                            </span>
+                            <span class="text">Enviar a revisión</span>
+                        </a>
+                        <a href="#" class="btn btn-warning btn-icon-split btn-sm my-3 mx-1" style="display:none" id="btn_send_coordinacion">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-arrow-right"></i>
+                            </span>
+                            <span class="text">Enviar a coordinación</span>
+                        </a>
+                    </tr>
+                    <tr>
+                        <th>
+                            <input type="checkbox" id="select_all_gestion" name="selectall" autocomplete="off">
+                        </th>
+                        <th>Cliente</th>
+                        <th>Establecimiento</th>
+                        <th>Comuna</th>
+                        <th>Estado</th>
+                        <th>Dias Estado</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th></th>
+                        <th>Cliente</th>
+                        <th>Establecimiento</th>
+                        <th>Comuna</th>
+                        <th>Estado</th>
+                        <th>Dias Estado</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    {% for campaign in campaigns %}
+                    <tr>
+                        <td><input type="checkbox" value='{{ campaign.id }}' name='chk_institutions_{{campaign.id}}' class="checkbox"></td>
+                        <td>{{campaign.institution.client}}</td>
+                        <td>{{campaign.institution.name}}</td>
+                        <td>{{campaign.institution.commune}}</td>
+                        <td>{{campaign.institution.status}}</td>
+                        <td>
+                            {% for date_status in campaign.log_institution_status %}
+                            {% if loop.last %}
+                            {{date_status.return_days(date_status.created)}}
+                            {% endif %}
+                            {% endfor %}
+                        </td>
+
+                        <td>
+                            <a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modalDetailInstitution_{{ campaign.institution.id }}" title="Cambiar estado">
+                                <i class="fas fa-edit fa-sm"></i>
+                            </a>
+
+                            <!-- Modal detalle del establecimiento -->
+
+                            <div class="modal fade modaldetailinstitution" id="modalDetailInstitution_{{ campaign.institution.id }}" data-campaign="{{campaign.institution.id}}" tabindex="-1" role="dialog" aria-labelledby="modalDetailInstitution_{{ campaign.institution.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-scrollable modal-xl modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="modalDetailInstitution">{{campaign.institution.name}}</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form method='POST' action="#">
+                                                {% with institution=campaign.institution %}
+                                                {% include "institution_data_table.html" %}
+                                                {% endwith %}
+                                            </form>
+
+                                            {% include "extras.html" %}
+
+                                        </div>
+
+                                        {% if current_user.is_admin %}
+                                        <div class="modal-footer">
+                                            <a type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</a>
+                                            <a href="{{ url_for('operacion.change_status', institution_id=campaign.institution.id, new_status=2, campaign_institution_id= campaign.id) }}" class="btn btn-primary">Enviar a revisión</a>
+                                            <a href="{{ url_for('operacion.change_status', institution_id=campaign.institution.id, new_status=7, campaign_institution_id= campaign.id) }}" class="btn btn-primary">Enviar a coordinación</a>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Fin modal -->
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+    {% include "scripts.html" %}
+{% endblock %}

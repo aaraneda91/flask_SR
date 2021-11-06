@@ -1,0 +1,460 @@
+
+<script>
+	{% if request.endpoint == 'operacion.phase2' %}
+		$("select#status").on('change', function (e) {
+			var campaign_id = $(this).attr('campaign');
+			if (this.value == 6) {
+				$('#ticket_ar_div').html("<input type='text' id='ticket_" + campaign_id + "' class='form-control' name='ticket_ar' required placeholder = 'Ticket AR'>");
+			} else {
+				$('#ticket_ar_div').empty();
+			}
+		});
+	{% endif %}
+
+	$('.custom-file-input').on('change', function (e) {
+		var fileName = e.target.files[0].name;
+		$(this).next('.custom-file-label').html(fileName);
+	});
+
+	$("button#submit_form_add_file").on('click', function (e) {
+		e.preventDefault();
+		var form_div = $(this).parent().parent().parent().attr('id');
+
+		var form_data = new FormData();
+
+		const form_add_file = document.querySelector('#' + form_div);
+		form_data.append("institution_id", form_add_file.dataset.campaign);
+		form_data.append("file", $('#add_file_' + form_add_file.dataset.campaign).prop('files')[0]);
+
+		$.ajax({
+			type: 'POST',
+			data: form_data,
+			processData: false,
+			contentType: false,
+			url: "{{ url_for('operacion.upload_file') }}",
+			beforeSend: function () {
+
+			},
+			success: function (data) {
+				if (data.status) {
+					$('#add_file_' + form_add_file.dataset.campaign).val('');
+					$('#add_file_' + form_add_file.dataset.campaign).next('.custom-file-label').html('Seleccionar Archivo');
+					get_campaign_files(form_add_file.dataset.campaign);
+				}
+			},
+			error: function (xhr) {
+
+			}
+		});
+	});
+
+	$("button#submit_form_add_observation").on('click', function (e) {
+		e.preventDefault();
+		var form_div = $(this).parent().parent().parent().attr('id');
+		var form_data = $('#' + form_div).serializeArray();
+
+		const form_add_observation = document.querySelector('#' + form_div);
+		form_data.push({ name: "institution_id", value: form_add_observation.dataset.campaign });
+
+		$.ajax({
+			type: 'POST',
+			dataType: "json",
+			data: form_data,
+			url: "{{ url_for('operacion.add_observation') }}",
+			beforeSend: function () {
+
+			},
+			success: function (data) {
+				$('#' + form_div + ' > div > div > #observacion').val('');
+				get_campaign_observations(form_add_observation.dataset.campaign);
+			},
+			error: function (xhr) {
+
+			}
+		});
+	});
+
+	$('.modaldetailinstitution').on('shown.bs.modal', function (e) {
+        campaign = $(this).data('campaign');
+        $.when(get_campaign_observations(campaign)).then(get_campaign_files(campaign));
+	});
+
+	function get_campaign_observations(campaign) {
+		$.ajax({
+			type: 'POST',
+			dataType: "json",
+			data: { "institution_id": campaign },
+			url: "{{ url_for('operacion.get_observation') }}",
+			beforeSend: function () {
+				$("#timeline_" + campaign).empty().append('<br><div class="d-flex justify-content-center"><div class= "spinner-border" role = "status"><span class="sr-only">Loading...</span></div></div><br>');
+			},
+			success: function (data) {
+				$("#timeline_" + campaign).empty();
+				if (data.status) {
+					$.each(data.observations, function (index, element) {
+						$("#timeline_" + campaign).append('<li><a href="#">' + element.user + '</a> [' + element.status + '] <a href="#" class="float-right">' + element.date + '</a> <p>' + element.comment + '</p> </li>');
+					});
+				} else {
+					$("#timeline_" + campaign).append('<li><a href="#"> - </a> - <a href="#" class="float-right"> - </a> <p> Sin Observaciones </p> </li>');
+				}
+			},
+			error: function (xhr) {
+				$("#timeline_" + campaign).empty();
+				$("#timeline_" + campaign).append('<li><a href="#"> - </a> - <a href="#" class="float-right"> - </a> <p> Error al obtener observaciones </p> </li>');
+			}
+		});
+	}
+
+    {% if current_user.is_admin %}
+	    function get_campaign_files(campaign) {
+		    $.ajax({
+			    type: 'POST',
+			    dataType: "json",
+			    data: { "institution_id": campaign },
+                url: "{{ url_for('operacion.get_files_current_period') }}",
+			    beforeSend: function () {
+                    $("#files_current_period_list_" + campaign + ' > tbody').empty();
+			    },
+			    success: function (data) {
+                    var download_url = '{{ url_for("operacion.download_files", file_uuid="download_file") }}';
+
+				    if (data.status) {
+                        $.each(data.files, function (index, element) {
+                            $("#files_current_period_list_" + campaign + ' > tbody').append('<tr><td>' + element.date + '</td> <td>' + element.period + '</td> <td> <a href="' + download_url.replace('download_file', element.unique_filename) + '">' + element.filename + '</a> </td>  <td>' + element.user + '</td>  <td>' + element.status + '</td> <td class="d-flex justify-content-center"> <button class="btn btn-warning" onclick="deletefile(\''+element.unique_filename+'\',\''+campaign+'\')"><i class="fas fa-trash-alt fa-sm"></i></button></td> </tr>');
+                        });
+				    } else {
+                        $("#files_current_period_list_" + campaign + ' > tbody').append('<tr><td> - </td> <td> - </td>  <td> - </td>  <td> - </td> <td> - </td>  <td> - </td> </tr>');
+				    }
+
+			    },
+			    error: function (xhr) {
+                    $("#files_current_period_list_" + campaign + ' > tbody').append('<tr><td> - </td> <td> - </td>  <td> - </td>  <td> - </td> <td> - </td>  <td> - </td> </tr>');
+			    }
+            });
+
+            $.ajax({
+                type: 'POST',
+                dataType: "json",
+                data: { "institution_id": campaign },
+                url: "{{ url_for('operacion.get_files_previous_preriod') }}",
+                beforeSend: function () {
+                    $("#files_previous_period__list_" + campaign + ' > tbody').empty();
+                },
+                success: function (data) {
+                    var download_url = '{{ url_for("operacion.download_files", file_uuid="download_file") }}';
+
+                    if (data.status) {
+                        $.each(data.files, function (index, element) {
+                            $("#files_previous_period__list_" + campaign + ' > tbody').append('<tr><td>' + element.date + '</td> <td>' + element.period + '</td> <td> <a href="' + download_url.replace('download_file', element.unique_filename) + '">' + element.filename + '</a> </td>  <td>' + element.user + '</td>  <td>' + element.status + '</td> <td class="d-flex justify-content-center"> <button class="btn btn-warning" onclick="deletefile(\'' + element.unique_filename + '\',\'' + campaign + '\')"><i class="fas fa-trash-alt fa-sm"></i></button></td> </tr>');
+                        });
+                    } else {
+                        $("#files_previous_period__list_" + campaign + ' > tbody').append('<tr><td> - </td> <td> - </td>  <td> - </td>  <td> - </td> <td> - </td>  <td> - </td> </tr>');
+                    }
+
+                },
+                error: function (xhr) {
+                    $("#files_previous_period__list_" + campaign + ' > tbody').append('<tr><td> - </td> <td> - </td>  <td> - </td>  <td> - </td> <td> - </td>  <td> - </td> </tr>');
+                }
+            });
+	    }
+    {% else %}
+    function get_campaign_files(campaign) {
+        $.ajax({
+            type: 'POST',
+            dataType: "json",
+            data: { "institution_id": campaign },
+            url: "{{ url_for('operacion.get_files_current_period') }}",
+            beforeSend: function () {
+                $("#files_current_period_list_" + campaign + ' > tbody').empty();
+            },
+            success: function (data) {
+                var download_url = '{{ url_for("operacion.download_files", file_uuid="download_file") }}';
+
+                if (data.status) {
+                    $.each(data.files, function (index, element) {
+                        $("#files_current_period_list_" + campaign + ' > tbody').append('<tr><td>' + element.date + '</td> <td>' + element.period + '</td> <td> <a href="' + download_url.replace('download_file', element.unique_filename) + '">' + element.filename + '</a> </td>  <td>' + element.user + '</td>  <td>' + element.status + '</td> </tr>');
+                    });
+                } else {
+                    $("#files_current_period_list_" + campaign + ' > tbody').append('<tr><td> - </td> <td> - </td>  <td> - </td>  <td> - </td> <td> - </td> </tr>');
+                }
+
+            },
+            error: function (xhr) {
+                $("#files_current_period_list_" + campaign + ' > tbody').append('<tr><td> - </td> <td> - </td>  <td> - </td>  <td> - </td> <td> - </td>  </tr>');
+            }
+        });
+
+        $.ajax({
+            type: 'POST',
+            dataType: "json",
+            data: { "institution_id": campaign },
+            url: "{{ url_for('operacion.get_files_previous_preriod') }}",
+            beforeSend: function () {
+                $("#files_previous_period__list_" + campaign + ' > tbody').empty();
+            },
+            success: function (data) {
+                var download_url = '{{ url_for("operacion.download_files", file_uuid="download_file") }}';
+
+                if (data.status) {
+                    $.each(data.files, function (index, element) {
+                        $("#files_previous_period__list_" + campaign + ' > tbody').append('<tr><td>' + element.date + '</td> <td>' + element.period + '</td> <td> <a href="' + download_url.replace('download_file', element.unique_filename) + '">' + element.filename + '</a> </td>  <td>' + element.user + '</td>  <td>' + element.status + '</td> </tr>');
+                    });
+                } else {
+                    $("#files_previous_period__list_" + campaign + ' > tbody').append('<tr><td> - </td> <td> - </td>  <td> - </td>  <td> - </td> <td> - </td>  </tr>');
+                }
+
+            },
+            error: function (xhr) {
+                $("#files_previous_period__list_" + campaign + ' > tbody').append('<tr><td> - </td> <td> - </td>  <td> - </td>  <td> - </td> <td> - </td>  </tr>');
+            }
+        });
+    }
+    {% endif %}
+
+    {% if current_user.is_admin %}
+        function deletefile(file_uuid, campaign) {
+
+            bootbox.confirm({
+                message: "¿Esta seguro que desea eliminar este archivo?",
+                locale: 'es',
+                centerVertical: true,
+                callback: function (result) {
+                    if (result) {
+
+                        $.ajax({
+                            type: 'POST',
+                            dataType: "json",
+                            data: { "file_uuid": file_uuid },
+                            url: "{{ url_for('operacion.delete_file') }}",
+                            beforeSend: function () {
+                            },
+                            success: function (data) {
+                                console.log(data);
+                                get_campaign_files(campaign);
+                            },
+                            error: function (xhr) {
+                            }
+                        });
+
+                    }
+                }
+            });
+
+        }
+    {% endif %}
+
+	 
+
+    $('.modalLocalContact').on('show.bs.modal', function (e) {
+        institution_campaign = $(this).data('institution_campaign');
+        get_contacts(institution_campaign);
+    });
+
+    $('#modaladdContact').on('show.bs.modal', function (e) {
+        institution_id = $(e.relatedTarget).data('institution_id');
+        $("#addContact > div > input[name='institution_id']").val(institution_id);
+    });
+
+    $('#modaladdContact').on('hide.bs.modal', function (e) {
+        $("#addContact").find('input, select').each(function () {
+            $(this).val('');
+        });
+    });
+
+    $('#modaleditContact').on('show.bs.modal', function (e) {
+        local_contact_id = $(e.relatedTarget).data('local_contact_id');
+
+        $.ajax({
+            type: 'POST',
+            dataType: "json",
+            data: { "local_contact_id": local_contact_id },
+            url: "{{ url_for('operacion.get_contact') }}",
+            beforeSend: function () {
+                $("#editContact").find('input, select').each(function () {
+                    $(this).val('');
+                });
+            },
+            success: function (data) {
+                if (data.status) {
+                    $("#editContact").find("input[name='local_contact_id']").val(data.contact.id);
+                    $("#editContact").find("input[name='name']").val(data.contact.name);
+                    $("#editContact").find("input[name='phone']").val(data.contact.phone);
+                    $("#editContact").find("input[name='email']").val(data.contact.email);
+                }
+            },
+            error: function (xhr) {
+            }
+        });
+
+    });
+
+    $('#modaleditContact').on('hide.bs.modal', function (e) {
+        $("#addContact").find('input, select').each(function () {
+            $(this).val('');
+        });
+    });
+
+
+    function get_contacts(institution_campaign) {
+        $("#contact_list_" + institution_campaign).DataTable().clear().destroy();
+        $.ajax({
+            type: 'POST',
+            dataType: "json",
+            data: { "institution_campaign_id": institution_campaign },
+            url: "{{ url_for('operacion.get_contacts') }}",
+            beforeSend: function () {
+                $("#contact_list_" + institution_campaign + ' > tbody').empty();
+                $("#contact_list_" + institution_campaign).DataTable().clear().destroy();
+            },
+            success: function (data) {
+                if (data.status) {
+                    if (Object.keys(data.contacts).length > 0) {
+                        $.each(data.contacts, function (index, element) {
+                            if (element.selected) {
+                                var status = '';
+                                $('#localContactName_'+institution_campaign).val(element.name);
+                                $('#localContactPhone_'+institution_campaign).val(element.phone);
+                                $('#localContactEmail_'+institution_campaign).val(element.email);
+                            } else {
+                                var status = '<button class="btn btn-warning" onClick=setLocalContact("' + element.id + '","' + institution_campaign + '")><i class="fas fa-fw fa-sm fa-chevron-up" title="Establecer como Contacto Local"></i> Fijar</button>';
+                            };
+                            $("#contact_list_" + institution_campaign + ' > tbody').append('<tr id="' + element.id + '"><td>' + element.name + '</td> <td>' + element.phone + '</td> <td> ' + element.email + ' </td>  <td class="d-flex justify-content-center">' + status + '&nbsp;<button class="btn btn-warning" data-toggle="modal" data-target="#modaleditContact" data-local_contact_id="' + element.id + '"><i class="fas fa-fw fa-sm fa-edit" title="Editar Contacto"></i> Editar</button>&nbsp;<button class="btn btn-danger" onClick=deactivateContact("' + element.id + '")><i class="fas fa-fw fa-sm fa-minus-square" title="Desactivar Contacto"></i> Desactivar</button></td> </tr>');
+                        });
+                    } else {
+                        $("#contact_list_" + institution_campaign + ' > tbody').append('<tr><td> - </td> <td> - </td>  <td> - </td>  <td> - </td> </tr>');
+                    }
+                } else {
+                    $("#contact_list_" + institution_campaign + ' > tbody').append('<tr><td> - </td> <td> - </td>  <td> - </td>  <td> - </td> </tr>');
+                }
+
+                $("#contact_list_" + institution_campaign).DataTable({
+                    "language": {
+                        "url": "{{ url_for('static', filename='vendor/datatables/es_es.json') }}"
+                    }
+                });
+            },
+            error: function (xhr) {
+            }
+        });
+    }
+
+    function setLocalContact(local_contact_id, institution_campaign){
+        bootbox.confirm({
+            message: "¿Esta seguro que desea definir este contacto como local?",
+            locale: 'es',
+            centerVertical: true,
+            callback: function (result) {
+                if (result) {
+
+                    $.ajax({
+                        type: 'POST',
+                        dataType: "json",
+                        data: {
+                            "local_contact_id": local_contact_id,
+                            "institution_campaign_id": institution_campaign,
+                        },
+                        url: "{{ url_for('operacion.set_local_contact') }}",
+                        beforeSend: function () {
+                            $("#divCoordinacionMsg").html("");
+                        },
+                        success: function (data) {
+                            $("#divCoordinacionMsg").append("<div class='alert alert-success' role='alert'>Se ha editado correctamente los cambios del establecimiento <b>"+data.institution_name+"</b>. <a href='#' data-toggle='modal' data-target='#modalLocalContact_"+data.institution+"'>Ver contactos</a></div>");
+                            $('#modalLocalContact_'+data.institution).modal('toggle');
+                            $('#modalLocalContact_'+data.institution).modal('show');
+                            
+                            $('#tdLocalContact_'+institution_campaign).html("")
+                            $('#tdLocalContact_'+institution_campaign).append(data.local_contact_name)
+                            location.reload();
+                        },
+                        complete: function(){
+                        },
+                        error: function (xhr) {
+                        }
+                    });
+
+                }
+            }
+        });
+    }
+
+    function deactivateContact(local_contact_id) {
+        bootbox.confirm({
+            message: "¿Esta seguro que desea desactivar este contacto?",
+            locale: 'es',
+            centerVertical: true,
+            callback: function (result) {
+                if (result) {
+
+                    $.ajax({
+                        type: 'POST',
+                        dataType: "json",
+                        data: {
+                            "local_contact_id": local_contact_id,
+                        },
+                        url: "{{ url_for('operacion.deactivate_contact') }}",
+                        beforeSend: function () {
+                        },
+                        success: function (data) {
+                            //window.location.href = window.location.href;
+                            $("#divCoordinacionMsg").append("<div class='alert alert-success' role='alert'>Se ha editado correctamente los cambios del establecimiento <b>"+data.institution_name+"</b>. <a href='#' data-toggle='modal' data-target='#modalLocalContact_"+data.institution+"'>Ver contactos</a></div>");
+                            $('#modalLocalContact_'+data.institution_id).modal('toggle');
+                            $('#modalLocalContact_'+data.institution_id).modal('show');
+                        },
+                        error: function (xhr) {
+                        }
+                    });
+
+                }
+            }
+        });
+    }
+
+    function add_contact(){
+        bootbox.confirm({
+            message: "¿Esta seguro que desea agregar este contacto",
+            locale: 'es',
+            centerVertical: true,
+            callback: function (result) {
+                if (result) {
+                    
+                    name = $("#addContactName").val()
+                    phone = $("#addContactPhone").val()
+                    email = $("#addContactEmail").val()
+
+                    $.ajax({
+                        type: 'POST',
+                        dataType: "json",
+                        data: {
+                            "institution_id": institution_id,
+                            "name": name,
+                            "phone": phone,
+                            "email": email
+                        },
+                        url: "{{ url_for('operacion.add_contact') }}",
+                        beforeSend: function () {
+                            $("#contact_list_" + institution_campaign + ' > tbody').empty();
+                            $("#contact_list_" + institution_campaign).DataTable().clear().destroy();
+                        },
+                        success: function (data) {
+                            if (Object.keys(data.contacts).length > 0) {
+                                $.each(data.contacts, function (index, element) {
+                                    if (element.selected) {
+                                        var status = '';
+                                    } else {
+                                        var status = '<button class="btn btn-warning" onClick=setLocalContact("' + element.id + '","' + institution_campaign + '")><i class="fas fa-fw fa-sm fa-chevron-up" title="Establecer como Contacto Local"></i> Fijar</button>';
+                                    };
+                                    $("#contact_list_" + institution_campaign + ' > tbody').append('<tr id="' + element.id + '"><td>' + element.name + '</td> <td>' + element.phone + '</td> <td> ' + element.email + ' </td>  <td class="d-flex justify-content-center">' + status + '&nbsp;<button class="btn btn-warning" data-toggle="modal" data-target="#modaleditContact" data-local_contact_id="' + element.id + '"><i class="fas fa-fw fa-sm fa-edit" title="Editar Contacto"></i> Editar</button>&nbsp;<button class="btn btn-danger" onClick=deactivateContact("' + element.id + '")><i class="fas fa-fw fa-sm fa-minus-square" title="Desactivar Contacto"></i> Desactivar</button></td> </tr>');
+                                });
+                                $('.modaladdContact').modal('toggle');
+                            } else {
+                                $("#contact_list_" + institution_campaign + ' > tbody').append('<tr><td> - </td> <td> - </td>  <td> - </td>  <td> - </td> </tr>');
+                            }
+                        },
+                        error: function (xhr) {
+                        }
+                    });
+                }
+            }
+        });
+    }
+</script>

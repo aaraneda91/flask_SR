@@ -1,0 +1,130 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+{% include "topbar.html" %}
+{% endblock %}
+
+{% block menu %}
+{% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Heading -->
+<h1 class="h3 mb-2 text-gray-800">Administración - Enlaces</h1>
+<p class="mb-4"><a href="{{ url_for('admin.links') }}">Enlaces</a></p>
+
+<a href="{{ url_for('admin.links_register') }}" class="btn btn-primary btn-icon-split btn-sm">
+   <span class="icon text-white-50">
+      <i class="fas fa-plus"></i>
+   </span>
+   <span class="text">Nuevo Enlace</span>
+</a>
+
+<a href="{{ url_for('admin.links_import') }}" class="btn btn-success btn-icon-split btn-sm">
+   <span class="icon text-white-50">
+      <i class="fas fa-plus"></i>
+   </span>
+   <span class="text">Importar</span>
+</a>
+
+<br><br>
+
+{% if link_delete_name %}
+<div class="alert alert-success" role="alert">
+    Se ha eliminado el registro <strong>{{link_delete_name}}</strong> correctamente.
+</div>
+{% endif %}
+
+<!-- DataTales Example -->
+<div class="row">
+   <div class="col-lg-12">
+      <div class="card shadow mb-4">
+         <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Lista de Enlaces</h6>
+         </div>
+         <div class="card-body">
+            <div class="table-responsive">
+               <table class="table" id="dataTable" width="100%" cellspacing="0">
+                     <thead>
+                        <tr>
+                           <th>#</th>
+                           <th>Cliente</th>
+                           <th>Establecimiento</th>
+                           <th>Tipo Enlace</th>
+                           <th>Tipo Conexión</th>
+                           <th>Código Servicio</th>
+                           <th>Dirección IP</th>
+                           <th></th>
+
+                        </tr>
+                     </thead>
+                     <tfoot>
+                        <tr>
+                            <th>#</th>
+                            <th>Cliente</th>
+                            <th>Establecimiento</th>
+                            <th>Tipo Enlace</th>
+                            <th>Tipo Conexión</th>
+                            <th>Código Servicio</th>
+                            <th>Dirección IP</th>
+                        </tr>
+                     </tfoot>
+                     <tbody>
+                        {% for link in links %}
+                        <tr>
+                           <td>{{ loop.index }}</td>
+                           <td>{{ link.institution.client }}</td>
+                           <td>{{ link.institution }}</td>
+                           <td>{{ link.link_type }}</td>
+                           <td>
+                              {% if link.connection_type != None %}
+                                 {{ link.connection_type }}
+                              {% endif %}
+                           </td>
+                           <td>{{ link.service_code }}</td>
+                           <td>{{ link.ip_direction }}</td>
+                           <td class="text-right">
+                              <a href="{{ url_for('admin.links_edit', id=link.id) }}" class="btn btn-info btn-circle btn-sm">
+                                 <i class="fas fa-edit"></i>
+                              </a>
+
+                              <a href="#" class="btn btn-danger btn-circle btn-sm" data-target="#eliminarLinkModal_{{link.id}}" data-toggle="modal">
+                                 <i class="fas fa-trash"></i>
+                              </a>
+                           </td>
+
+                        </tr>
+                             <!-- Communes Modal-->
+                             <div class="modal fade" id="eliminarLinkModal_{{link.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                             aria-hidden="true">
+                             <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                   <div class="modal-header">
+                                      <h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
+                                      <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                         <span aria-hidden="true">×</span>
+                                      </button>
+                                   </div>
+                                   <div class="modal-body">
+                                   ¿Seguro(a) que quiere eliminar este registro?<br><br>
+                                   {{link.institution}} 
+                                   </div>
+                                   <div class="modal-footer">
+                                      <form action="{{ url_for('admin.links_delete', id = link.id) }}" method="POST">
+                                         <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+                                         <button class="btn btn-primary">Confirmar</button>
+                                      </form>
+                                   </div>
+                                </div>
+                             </div>
+                          </div>
+                        {% endfor %}
+                     </tbody>
+               </table>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{% endblock %}

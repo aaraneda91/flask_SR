@@ -1,0 +1,121 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+{% include "topbar.html" %}
+{% endblock %}
+
+{% block menu %}
+{% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<style>
+table.reports.dataTable td, th{
+  font-size: 0.8em;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 0.2em;
+  padding-right: 0.2em;
+}
+</style>
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Reporte - Establecimientos</h1>
+    
+</div>
+
+<div class="card mb-4 border-left-info">
+    <div class="card-body">
+        <div class="row">
+        <form method="POST" class="col-md-6" action="{{ url_for('reports.report_states_institutions') }}">
+            <div class="form-group row">
+                <div class="col-md-4 ">
+                    <div class="my-0">
+                        <a href="{{ url_for('reports.report_states_institutions_download') }}" 
+                            class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm {% if institutions|length < 1 %} disabled {% endif %}">
+                            <i class="fas fa-download fa-sm text-white-50"></i> Generar Reporte</a>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 ">
+                    <select class="form-control form-control-user" name="period">
+                        {% for row in periods %}
+                        <option {% if row.period == period_selected %}selected=selected{% endif %}>{{ row.period }}</option>
+                        {% endfor %}
+                    </select>
+
+                </div>
+
+                <div class="col-md-2 ">
+                    <button class="btn btn-success">Aplicar</button>
+                </div>
+            </div>
+        </form>
+        </div>
+    </div>
+</div>
+
+<!-- DataTales Example -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Establecimientos {% if period_selected %}del período {{ period_selected }} {% endif %}</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered reports" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Establecimiento</th>
+                        <th>Dirección</th>
+                        <th>Comuna</th>
+                        <th>Estado</th>
+                        <th>Etapa</th>
+                        <th>Último cambio de estado (fecha)</th>
+                        <th>Último cambio de estado (usuario)</th>
+                        <th>Cliente</th>
+                        <th>Estado campaña</th>
+                        <th>Director servicios</th>
+                        <th>Contacto local (nombre)</th>
+                        <th>Contacto local (teléfono)</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Establecimiento</th>
+                        <th>Dirección</th>
+                        <th>Comuna</th>
+                        <th>Estado</th>
+                        <th>Etapa</th>
+                        <th>Último cambio de estado (fecha)</th>
+                        <th>Último cambio de estado (usuario)</th>
+                        <th>Cliente</th>
+                        <th>Estado campaña</th>
+                        <th>Director servicios</th>
+                        <th>Contacto local (nombre)</th>
+                        <th>Contacto local (teléfono)</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    {% for row in institutions %}
+                            <tr>
+                                <td>{{ row.inst_name }}</td>
+                                <td>{{ row.inst_address }}</td>
+                                <td>{{ row.comn_name }}</td>
+                                <td>{{ row.status }}</td>
+                                <td>{{ row.etapa }}</td>
+                                <td>{{ row.change_status_date }}</td>
+                                <td>{{ row.change_status_user }}</td>
+                                <td>{{ row.client_name }}</td>
+                                <td>{{ row.status_camp }}</td>
+                                <td>{{ row.director }}</td>
+                                <td>{% if row.lc_name %} {{ row.lc_name }} {% endif %}</td>
+                                <td>{% if row.lc_phone %} {{ row.lc_phone }} {% endif %}</td>
+                            </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

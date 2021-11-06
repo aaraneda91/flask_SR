@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+{% include "topbar.html" %}
+{% endblock %}
+
+{% block menu %}
+{% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<h1 class="h3 mb-2 text-gray-800">Administración - Campañas</h1>
+<p class="mb-4">
+   <a href="{{ url_for('admin.campaigns') }}">Campañas</a> / 
+   <a href="{{ url_for('admin.campaigns_register') }}"> Registrar</a>
+</p>
+
+{% if error_msg %}
+<div class="alert alert-danger" role="alert">
+   Ya existe una campaña con el mismo nombre.
+</div>
+{% endif %}
+
+<div class="card o-hidden border-0 shadow-lg my-5">
+   <div class="card-body p-0">
+      <div class="row">
+         <div class="col-lg-2 d-none d-lg-block"></div>
+         <div class="col-lg-7">
+            <div class="p-5">
+               <div class="text-center">
+                  <h1 class="h4 text-gray-900 mb-4">Nombre de la campaña</h1>
+               </div>
+               <form class="user text-center" action="{{ url_for('admin.campaigns_select_institutions') }}" method="POST">
+                  {{ form.hidden_tag() }}
+                  <div class="form-group row">
+                     <div class="col-sm-12 mb-3 mb-sm-0 text-left">
+                        <label for='name_campaign'>Nombre: </label>
+                        {{ render_field(form.name, class="form-control form-control-user",id="name_campaign") }}
+                     </div>
+                  </div>
+                  <div class="form-group row">
+                     <div class="col-sm-6 mb-3 mb-sm-0 text-left">
+                        <label for='client_campaign'>Cliente: </label>
+                        {{ render_field(form.client, class="form-control form-control-user", id="id_campaign") }}
+                     </div>
+                     <div class="col-sm-6 mb-3 mb-sm-0 text-left">
+                        <label for='period_campaign'>Período: </label>
+                        {{ render_field(form.period, class="form-control form-control-user", type="number", min=form_year_min, max=form_year_max) }}
+                     </div>
+                  </div>
+                  <button class="btn btn-primary btn-user btn-block">Crear Campaña</button>
+               </form>
+            </div>
+         </div>
+         <div class="col-lg-2 d-none d-lg-block"></div>
+      </div>
+   </div>
+</div>
+
+{% endblock %}

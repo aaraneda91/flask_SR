@@ -1,0 +1,197 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+{% include "topbar.html" %}
+{% endblock %}
+
+{% block menu %}
+{% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<h1 class="h3 mb-2 text-gray-800">Administración - Envío de correos - {{ type }}</h1>
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href='{{ url_for('admin.mails_list') }}'>Envío de correos</a></li>
+    <li class="breadcrumb-item">Editar {{ type }}</li>
+  </ol>
+</nav>
+
+{% if error_msg %}
+<div class="alert alert-danger" role="alert">
+   Ya existe una comuna con el mismo nombre.
+</div>
+{% endif %}
+
+<div class="row">
+   <form class="col-lg-6" action="{{ url_for('admin.mail_cc_edit', id = id, type = type) }}" method="POST">
+      <div class="form-group row">
+         <input type="text" class="form-control form-control-user col-lg-4" name="anon_user">
+         <button class="btn btn-success btn-user btn-block col-lg-2">Registrar</button>
+      </div>
+   </form>
+
+   <form class="col-lg-6" action="{{ url_for('admin.mail_cc_edit', id = id, type = type) }}" method="POST">
+      <div class="form-group row">
+         <select type="text" class="form-control form-control-user col-lg-4" name="user_id">
+            <option disabled selected>Usuarios registrados</option>
+            {% for user in users %}
+            <option value='{{ user.id }}'>{{ user.name }} {{ user.lastname }} ({{ user.email }})</option>
+            {% endfor %}
+         </select>
+         <button class="btn btn-success btn-user btn-block col-lg-2">Registrar</button>
+      </div>
+   </form>
+</div>
+
+<div class="row">
+   <div class="col-lg-6">
+      <div class="card shadow mb-4">
+         <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Correos anónimos</h6>
+         </div>
+         <div class="card-body">
+            <div class="table-responsive">
+               <table class="table" width="100%" cellspacing="0">
+                  <thead>
+                     <tr>
+                        <th>Correos electrónicos</th>
+                        <th></th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     {% for contact in anon_contacts %}
+                     <tr>
+                        <td>{{ contact.mail }}</td>
+                        <td>
+                           <form action="{{ url_for('admin.mail_cc_edit', id = id, type = type) }}" method="POST">
+                           <input type='hidden' name='contact_id' value='{{ contact.id }}'>
+                           <input type='hidden' name='remove_email' value='true'>
+                           <button href="#" class="btn btn-danger btn-circle btn-sm"><i class="fas fa-trash"></i></button>
+                           </form>
+                        </td>
+                     </tr>
+                     {% endfor %}
+                  </tbody>
+               </table>
+            </div>
+         </div>
+      </div>
+   </div>
+
+   <div class="col-lg-6">
+      <div class="card shadow mb-4">
+         <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Correos de usuarios</h6>
+         </div>
+         <div class="card-body">
+            <div class="table-responsive">
+               <table class="table" width="100%" cellspacing="0">
+                  <thead>
+                     <tr>
+                        <th>Correos electrónicos</th>
+                        <th></th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     {% for contact in contacts %}
+                     {% if contact.user_id != none %}
+                     <tr>
+                        <td>{{ contact.user.name }} {{ contact.user.lastname}} ({{contact.user.email}})</td>
+                        <td>
+                           <form action="{{ url_for('admin.mail_cc_edit', id = id, type = type) }}" method="POST">
+                           <input type='hidden' name='contact_id' value='{{ contact.id }}'>
+                           <input type='hidden' name='remove_email' value='true'>
+                           <button href="#" class="btn btn-danger btn-circle btn-sm"><i class="fas fa-trash"></i></button>
+                           </form>
+                        </td>
+                     </tr>
+                     {% endif %}
+                     {% endfor %}
+                  </tbody>
+               </table>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+
+<div clas="row">
+   <form class="col-lg-6" action="{{ url_for('admin.groupsmails_add', sendmail_id = id, type = type) }}" method="POST">
+      <div class="form-group row">
+         <select type="text" class="form-control form-control-user col-lg-4" name="groupmail_id">
+            <option disabled selected>Grupos registrados</option>
+            {% for group in groupsmails %}
+            <option value='{{ group.id }}'>{{ group.name }}</option>
+            {% endfor %}
+         </select>
+         <button class="btn btn-success btn-user btn-block col-lg-2">Registrar</button>
+      </div>
+   </form>
+   <div class="col-lg-6">
+      <div class="card shadow mb-4">
+         <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Grupos de correos</h6>
+         </div>
+         <div class="card-body">
+            <div class="table-responsive">
+               <table class="table" width="100%" cellspacing="0">
+                  <thead>
+                     <tr>
+                        <th>Registrados</th>
+                        <th></th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     {% for group in saved_groups %}
+                     <tr>
+                     <!-- data-toggle="modal" data-target="#exampleModalCenter" -->
+                     <!-- target='blank' -->
+                        <td><a href='#' data-toggle="modal" data-target="#exampleModalCenter{{group.id}}">{{ group.name }}</a></td>
+                        <td>
+                           <form action="{{ url_for('admin.mail_cc_edit', id = id, type = type) }}" method="POST">
+                           <input type='hidden' name='group_id' value='{{ group.id }}'>
+                           <input type='hidden' name='remove_group' value='true'>
+                           <a href='{{ url_for('admin.groupsmailsNewItem', group_id = group.id) }}' target='blank' class="btn btn-warning btn-circle btn-sm">
+                              <i class="fas fa-external-link-alt"></i> 
+                           </a>
+                           <button href="#" class="mx-3 btn btn-danger btn-circle btn-sm"><i class="fas fa-trash"></i></button>
+                           </form>
+                        </td>
+                     </tr>
+
+                     <!-- Modal -->
+                     <div class="modal fade" id="exampleModalCenter{{group.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                     <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                           <div class="modal-header">
+                           <h5 class="modal-title" id="exampleModalLongTitle">Contactos del grupo {{ group.name }}</h5>
+                           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                           </button>
+                           </div>
+                           <div class="modal-body">
+                              <ul>
+                                 {% for item in items_in_groups %}
+                                 {% if item.group_mail_id == group.id %} <li>{{ item.mail }} ({{ item.name }})</li> {% endif %}
+                                 {% endfor %}
+                              </ul>
+                           </div>
+                           <div class="modal-footer">
+                           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                           </div>
+                        </div>
+                     </div>
+                     </div>
+                     {% endfor %}
+                  </tbody>
+               </table>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+
+{% endblock %}

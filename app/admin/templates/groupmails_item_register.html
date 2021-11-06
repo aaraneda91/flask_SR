@@ -1,0 +1,152 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+{% include "topbar.html" %}
+{% endblock %}
+
+{% block menu %}
+{% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<h1 class="h3 mb-2 text-gray-800">Administración - Envíos correos</h1>
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('admin.mails_list') }}">Envío de correos</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('admin.groupsmails') }}">Grupos</a>
+    <li class="breadcrumb-item" aria-current="page">Gestión grupo</a>
+  </ol>
+</nav>
+
+{% if error %}
+<div class="alert alert-danger" role="alert">
+    {{ error }}
+</div>
+{% endif %}
+
+<div class="card o-hidden border-0 shadow-lg my-5">
+   <div class="card-body p-0">
+         <div class="text-center">
+         <h5>Gestión de grupo: <strong>{{ groupmail.name }}</strong></h5></div>
+      <div class="row">
+         <div class="col-lg-6 d-none d-lg-block">
+            <div class="p-5">
+               <div class="card">
+                  <h5 class="card-header">Agregar contactos</h5>
+                  <div class="card-body">
+                     <h5 class="card-title">Formulario</h5>
+                     <form class="user text-center" action="{{ url_for('admin.groupsmailsNewItem', group_id = groupmail.id) }}" method="POST">
+                        {{ formAddItem.hidden_tag() }}
+                        <div class="form-group row">
+                           <div class="col-lg-6">
+                           {{ render_field(formAddItem.name, class="form-control form-control-user", placeholder="Nombre") }}
+                           </div>
+                           <div class="col-lg-6">
+                           {{ render_field(formAddItem.mail, class="form-control form-control-user", placeholder="Correo") }}
+                           </div>
+                        </div>
+                        <div class="form-group row">
+                           {{ render_field(formAddItem.submit, class="btn btn-primary btn-user btn-block") }}
+                        </div>
+                     </form>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+         <div class="col-lg-6 d-none d-lg-block">
+            <div class="p-5">
+               <div class="card">
+                  <h5 class="card-header">Agregar clientes</h5>
+                  <div class="card-body">
+                     <h5 class="card-title">Formulario</h5>
+                     <form class="user text-center" action="{{ url_for('admin.groupsmailsNewItem', group_id = groupmail.id) }}" method="POST">
+                     {{ formAddClient.hidden_tag() }}
+                        <div class="form-group row">
+                           <div class="col-lg-12">
+                              {{ render_field(formAddClient.clients, class="form-control form-control-user") }}
+                           </div>
+                        </div>
+                        <div class="form-group row">
+                           <div class="col-lg-12">
+                              {{ render_field(formAddClient.submit, class="btn btn-primary btn-user btn-block") }}
+                           </div>
+                        </div>
+                     </form>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <div class="row">
+         <div class="col-lg-6 d-none d-lg-block">
+            <div class="p-5">
+               <div class="card">
+                  <h5 class="card-header">Correos registrados</h5>
+                  <div class="card-body">
+                     <table class="table table-bordered">
+                        <thead>
+                           <tr>
+                              <th>Nombre</th>
+                              <th>Correo</th>
+                              <th></th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           {% for item in itemGroupMail %}
+                           <tr>
+                              <td>{{ item.name }}</td>
+                              <td>{{ item.mail }}</td>
+                              <td>
+                                 <a href="{{ url_for('admin.groupsmailsDeleteItem', type = 1, group_id = groupmail.id, id = item.id) }}" class="btn btn-danger btn-circle btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                 </a>
+                              </td>
+                           </tr>
+                           {% endfor %}
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+         <div class="col-lg-6 d-none d-lg-block">
+            <div class="p-5">
+               <div class="card">
+                  <h5 class="card-header">Clientes registrados</h5>
+                  <div class="card-body">
+                     <ul>
+                        <table class="table table-bordered">
+                           <thead>
+                              <tr>
+                                 <th>Nombre</th>
+                                 <th></th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              {% for item in clientsGroupMail %}
+                              <tr>
+                                 <td>{{ item.clients.name }}</td>
+                                 <td>
+                                    <a href="{{ url_for('admin.groupsmailsDeleteItem', type = 2, group_id = groupmail.id, id = item.id) }}" class="btn btn-danger btn-circle btn-sm">
+                                       <i class="fas fa-trash"></i>
+                                    </a>
+                                 </td>
+                              </tr>
+                              {% endfor %}
+                           </tbody>
+                        </table>
+                     </ul>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+
+{% endblock %}

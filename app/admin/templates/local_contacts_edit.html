@@ -1,0 +1,188 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+{% include "topbar.html" %}
+{% endblock %}
+
+{% block menu %}
+{% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<h1 class="h3 mb-2 text-gray-800">Administración - Comunas</h1>
+<p class="mb-4">
+   <a href="{{ url_for('admin.institutions') }}">Establecimientos</a> /
+   <a href="{{ url_for('admin.local_contacts') }}">Contactos locales</a> /
+   <a href="#">Editar</a>
+</p>
+
+{% if msg_success_update %}
+<div class="alert alert-success" role="alert">
+   Registro actualizado correctamente.
+</div>
+{% endif %}
+
+<div class="card o-hidden border-0 shadow-lg my-5">
+   <div class="card-body p-0">
+      <div class="row">
+         <div class="col-lg-2 d-none d-lg-block"></div>
+         <div class="col-lg-7">
+            <div class="p-5">
+               <div class="text-center">
+                  <h1 class="h4 text-gray-900 mb-4">EDITAR CONTACTO LOCAL</h1>
+               </div>
+
+               <div class="card mb-4">
+                  <div class="card-body">
+                     <div class="row">
+                        <div class="mx-3">
+
+                           {% if active == false %}   
+
+                           <form method="POST" action="{{ url_for('admin.local_contact_activate') }}">
+
+                              <input type="hidden" name="local_contact_id" value="{{local_contact_id}}">
+
+                              <button class="btn btn-success btn-sm">
+                                 <span class="icon text-white-50">
+                                    <i class="fas fa-plus-circle"></i>
+                                 </span>
+                                 <span class="text">Activar</span>
+                              </button>
+
+                           </form>
+
+                           {% else %}
+
+                           <form method="POST" action="{{ url_for('admin.local_contact_deactivate') }}">
+
+                              <input type="hidden" name="local_contact_id" value="{{local_contact_id}}">
+                              
+                              <button class="btn btn-warning btn-sm">
+                                 <span class="icon text-white-50">
+                                    <i class="fas fa-minus-circle"></i>
+                                 </span>
+                                 <span class="text">Desactivar</span>
+                              </button>
+
+                           </form>
+
+                           {% endif %}
+
+                        </div>
+
+                        <div class="mx-3">
+                           <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalDetailInstitution">
+                              <span class="icon text-white-50">
+                                 <i class="fas fa-trash"></i>
+                              </span>
+                              <span class="text">Eliminar</span>
+                           </button>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+               <!-- formulario edición -->
+               <form class="user text-center" action="{{ url_for('admin.local_contacts_edit', id=local_contact_id) }}" method="POST">
+               {{ form.hidden_tag() }}
+
+                  <div class="form-group row">
+                     <div class="col-sm-6 mb-3 mb-sm-0 text-left">
+                        <label for='name_after'>Establecimiento: </label>
+                        {{ render_field(form.institution, class="form-control form-control-user", disabled=disabled) }}
+                     </div>
+
+                     <div class="col-sm-6 mb-3 mb-sm-0 text-left">
+                        <label for='name_after'>Nombre: </label>
+                        {{ render_field(form.name, class="form-control form-control-user") }}
+                     </div>
+
+                     <div class="col-sm-6 mb-3 mb-sm-0 text-left">
+                        <label for='name_after'>Teléfono: </label>
+                        {{ render_field(form.phone, class="form-control form-control-user") }}
+                     </div>
+
+                     <div class="col-sm-6 mb-3 mb-sm-0 text-left">
+                        <label for='name_after'>Email: </label>
+                        {{ render_field(form.email, class="form-control form-control-user") }}
+                     </div>
+
+                  </div>
+
+                  <div class="row">
+                     <div class="col-sm-4 mb-3 mb-sm-0 text-left"></div>
+                     <div class="col-sm-4 mb-3 mb-sm-0 text-left">
+                        <button class="btn btn-success btn-user btn-block">Guardar</button>
+                     </div>
+                     <div class="col-sm-4 mb-3 mb-sm-0 text-left"></div>
+                  </div>
+               </form>
+            </div>
+         </div>
+         <div class="col-lg-2 d-none d-lg-block"></div>
+      </div>
+   </div>
+</div>
+
+<div class="row">
+   <div class="col-lg-12">
+      <div class="card shadow mb-4">
+         <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Historial de modificación</h6>
+         </div>
+         <div class="card-body">
+            <div class="table-responsive">
+               <table class="table" width="100%" cellspacing="0">
+                  <thead>
+                     <tr>
+                        <th>Contacto local</th>
+                        <th>Acción</th>
+                        <th>Usuario</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     {% for log in logs %}
+                     <tr>
+                        <td>{{ log.local_contact.name }}</td>
+                        <td>{{ log.action }}</td>
+                        <td>{{ log.user }}</td>
+                        <td>{{ log.created.strftime('%d-%m-%Y') }}</td>
+                        <td>{{ log.created.strftime('%H:%M:%S') }}</td>
+                     </tr>
+                     {% endfor %}
+                  </tbody>
+               </table>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="modalDetailInstitution" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Mensaje de alerta</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ¿Seguro/a que quiere eliminar este registro?
+      </div>
+      <div class="modal-footer">
+         <form method="POST" action="{{ url_for('admin.local_contact_delete') }}">
+            <input type="hidden" name="id" value="{{local_contact_id}}">
+            <a href="#" class="btn btn-secondary" data-dismiss="modal">Cancelar</a>
+            <input type="submit" class="btn btn-primary" value="Confirmar">
+         </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

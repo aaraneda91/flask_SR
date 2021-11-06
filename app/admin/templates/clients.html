@@ -1,0 +1,114 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+{% include "topbar.html" %}
+{% endblock %}
+
+{% block menu %}
+{% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Heading -->
+<h1 class="h3 mb-2 text-gray-800">Administración - Clientes</h1>
+<p class="mb-4"><a href="{{ url_for('admin.clients') }}">Clientes</a></p>
+
+<a href="{{ url_for('admin.clients_register') }}" class="btn btn-primary btn-icon-split btn-sm">
+   <span class="icon text-white-50">
+      <i class="fas fa-plus"></i>
+   </span>
+   <span class="text">Nuevo cliente</span>
+</a>
+
+<a href="{{ url_for('admin.clients_categories') }}" class="btn btn-primary btn-icon-split btn-sm">
+   <span class="icon text-white-50">
+      <i class="fas fa-plus"></i>
+   </span>
+   <span class="text">Categorias</span>
+</a>
+
+<br><br>
+
+{% if client_delete_name %}
+<div class="alert alert-success" role="alert">
+    Se ha eliminado el registro <strong>{{client_delete_name}}</strong> correctamente.
+</div>
+{% endif %}
+
+<!-- DataTales Example -->
+<div class="card shadow mb-4">
+   <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">Listado</h6>
+   </div>
+   <div class="card-body">
+      <div class="table-responsive">
+         <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+               <thead>
+                  <tr>
+                     <th>#</th>
+                     <th>Nombre</th>
+                     <th>Categoria</th>
+                     <th>Director de servicios</th>
+                     <th></th>
+                  </tr>
+               </thead>
+               <tfoot>
+                  <tr>
+                     <th>#</th>
+                     <th>Nombre</th>
+                     <th>Categoria</th>
+                     <th>Director de servicios</th>
+                     <th></th>
+                  </tr>
+               </tfoot>
+               <tbody>
+                  {% for client in clients %}
+                  <tr>
+                     <td>{{ loop.index }}</td>
+                     <td>{{client[2]}}</td> <!-- nombre cliente-->
+                     <td>{% if client[3] != None %} {{ client[3] }} {% endif %}</td> <!-- categoria -->
+                     <td>{% if client[4] != None %} {{ client[4] }} {{ client[5] }}{% endif %}</td> <!-- director de servicios -->
+
+                     <td class="text-right">
+                        <a href="{{ url_for('admin.client_update_form', id = client.id) }}" class="btn btn-info btn-circle btn-sm">
+                           <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="#" class="btn btn-danger btn-circle btn-sm" data-target="#eliminarComunaModal_{{client.id}}" data-toggle="modal">
+                           <i class="fas fa-trash"></i>
+                        </a>
+                     </td>
+                  </tr>
+
+                     <!-- Communes Modal-->
+                     <div class="modal fade" id="eliminarComunaModal_{{client.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                           <div class="modal-content">
+                              <div class="modal-header">
+                                 <h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
+                                 <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">×</span>
+                                 </button>
+                              </div>
+                              <div class="modal-body">
+                              ¿Seguro(a) que quiere eliminar este registro?<br><br>
+                              {{client.name}}
+                              </div>
+                              <div class="modal-footer">
+                                 <form action="{{ url_for('admin.clients_delete', id = client.id) }}" method="POST">
+                                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+                                    <button class="btn btn-primary">Confirmar</button>
+                                 </form>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </tr>
+                  {% endfor %}
+               </tbody>
+         </table>
+      </div>
+   </div>
+</div>
+{% endblock %}

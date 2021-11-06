@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+{% include "topbar.html" %}
+{% endblock %}
+
+{% block menu %}
+{% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<h1 class="h3 mb-2 text-gray-800">Administración - Clientes</h1>
+<p class="mb-4">
+   <a href="{{ url_for('admin.clients') }}">Clientes</a> / 
+   <a href="{{ url_for('admin.clients_register') }}"> Registrar</a>
+</p>
+
+<div class="card o-hidden border-0 shadow-lg my-5">
+   <div class="card-body p-0">
+      <div class="row">
+         <div class="col-lg-2 d-none d-lg-block"></div>
+         <div class="col-lg-7">
+            <div class="p-5">
+               <div class="text-center">
+                  <h1 class="h4 text-gray-900 mb-4">Nuevo cliente</h1>
+               </div>
+               <form class="user text-center" action="{{ url_for('admin.client_update_form', id=client.id) }}" method="POST">
+
+                  <div class="form-group row text-left">
+                     <div class="col-sm-6 mb-3 mb-sm-0">
+                        <label for="name" class="col-form-label col-sm-6">Nombre</label>
+                        <input type="text" class="form-control form-control-user" placeholder="Nombre" name="name" value="{{ client.name }}">
+                     </div>
+
+                     <div class="col-sm-6 mb-3 mb-sm-0">
+                        <label for="category" class="col-form-label col-sm-6">Categoria</label>
+                        <select name='category' class="form-control form-control-user" autocomplete="off">
+                              <option value="" disabled selected>Seleccione un usuario</option>
+                              {% for category in categories %}
+                                 <option value="{{category.id}}" {% if client.category_id == category.id %} selected {% endif %}>{{ category.name }}</option>
+                              {% endfor %}
+                        </select>
+                     </div>
+                  </div>
+                  <div class="form-group row text-left">
+                     <div class="col-sm-6 mb-3 mb-sm-0">
+                        <label for="user" class="col-form-label col-sm-6">Director de servicios</label>
+                        <select name='user' class="form-control form-control-user" autocomplete="off">
+                              <option value="" disabled selected>Seleccione un usuario</option>
+                              {% for user in users %}
+                               <!-- {% if director == user.id %} selected {% endif %} -->
+                                 <option value="{{user.id}}" {% if director.directors_id == user.id %} selected {% endif %}>{{ user.name }} {{ user.lastname }}</option>
+                              {% endfor %}
+                        </select>
+                     </div>
+                  </div>
+                  <button class="btn btn-primary btn-user btn-block">Registrar</button>
+
+               </form>
+            </div>
+         </div>
+         <div class="col-lg-2 d-none d-lg-block"></div>
+      </div>
+   </div>
+</div>
+
+{% endblock %}

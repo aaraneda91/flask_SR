@@ -1,0 +1,95 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+{% include "topbar.html" %}
+{% endblock %}
+
+{% block menu %}
+{% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Heading -->
+<h1 class="h3 mb-2 text-gray-800">Administración - Contactos Locales</h1>
+<p class="mb-4"><a href="{{ url_for('admin.institutions') }}">Establecimientos</a> /
+<a href="{{ url_for('admin.local_contacts') }}">Contactos locales</a></p>
+
+<div class="card mb-4 border-left-info">
+   <div class="card-body">
+      <div class="row">
+         <div class="my-0">
+
+            <a href="{{ url_for ('admin.institutions') }}" class="btn btn-warning btn-icon-split btn-sm">
+               <span class="icon text-white-50">
+                  <i class="fas fa-building"></i>
+               </span>
+               <span class="text">Establecimientos</span>
+            </a>
+
+            <a href="{{ url_for ('admin.local_contacts_import') }}" class="btn btn-warning btn-icon-split btn-sm">
+               <span class="icon text-white-50">
+                  <i class="fas fa-file-import"></i>
+               </span>
+               <span class="text">Importar</span>
+            </a>
+         </div>
+      </div>
+   </div>
+</div>
+<!-- DataTales Example -->
+<div class="row">
+   <div class="col-lg-12">
+      <div class="card shadow mb-4">
+         <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Contactos locales</h6>
+         </div>
+         <div class="card-body">
+            <div class="table-responsive">
+               <table class="table" id="dataTableLocalContact" width="100%" cellspacing="0">
+                     <thead>
+                        <tr>
+                           <th>#</th>
+                           <th class="select-filter">Nombre</th>
+                           <th>Teléfono</th>
+                           <th class="select-filter">Email</th>
+                           <th class="select-filter">Establecimiento</th>
+                           <th class="select-filter">Cliente</th>
+                           <th></th>
+                        </tr>
+                     </thead>
+                     <tfoot>
+                        <tr>
+                           <th>#</th>
+                           <th>Nombre</th>
+                           <th>Teléfono</th>
+                           <th>Email</th>
+                           <th>Establecimiento</th>
+                           <th>Cliente</th>
+                           <th></th>
+                        </tr>
+                     </tfoot>
+                     <tbody>
+                        {% for local_contact in local_contacts %}
+                        <tr>
+                           <td>{{ loop.index }}</td>
+                           <td>{{ local_contact.name }}</td>
+                           <td>{{ local_contact.phone }}</td>
+                           <td>{% if local_contact.email %} {{ local_contact.email }} {% endif %}</td>
+                           <td>{{ local_contact.institution.name }}</td>
+                           <td>{{ local_contact.institution.client }}</td>
+                           <td class="text-right">
+                              <a href="{{ url_for('admin.local_contacts_edit', id=local_contact.id) }}" class="btn btn-info btn-circle">
+                                 <i class="fas fa-edit"></i>
+                              </a>
+                           </td>
+                        </tr>
+                        {% endfor %}
+                     </tbody>
+               </table>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{% endblock %}

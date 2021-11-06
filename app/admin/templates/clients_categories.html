@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+{% include "topbar.html" %}
+{% endblock %}
+
+{% block menu %}
+{% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Heading -->
+<h1 class="h3 mb-2 text-gray-800">Administración - Clientes - Categorias</h1>
+<p class="mb-4"><a href="{{ url_for('admin.clients') }}">Clientes</a>
+/ Categorias
+</p>
+
+<a href="{{ url_for('admin.clients_categories_register') }}" class="btn btn-primary btn-icon-split btn-sm">
+   <span class="icon text-white-50">
+      <i class="fas fa-plus"></i>
+   </span>
+   <span class="text">Nueva categoria</span>
+</a>
+
+<a href="{{ url_for('admin.clients') }}" class="btn btn-primary btn-icon-split btn-sm">
+   <span class="icon text-white-50">
+      <i class="fas fa-plus"></i>
+   </span>
+   <span class="text">Clientes</span>
+</a>
+
+<br><br>
+
+{% if client_delete_name %}
+<div class="alert alert-success" role="alert">
+    Se ha eliminado el registro <strong>{{client_delete_name}}</strong> correctamente.
+</div>
+{% endif %}
+
+<!-- DataTales Example -->
+<div class="card shadow mb-4">
+   <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">Listado</h6>
+   </div>
+   <div class="card-body">
+      <div class="table-responsive">
+         <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+               <thead>
+                  <tr>
+                     <th>#</th>
+                     <th>Nombre</th>
+                  </tr>
+               </thead>
+               <tfoot>
+                  <tr>
+                     <th>#</th>
+                     <th>Nombre</th>
+                  </tr>
+               </tfoot>
+               <tbody>
+                  {% for category in categories %}
+                  <tr>
+                     <td>{{ loop.index }}</td>
+                     <td>{{category.name}}</td>
+                  </tr>
+                  {% endfor %}
+               </tbody>
+         </table>
+      </div>
+   </div>
+</div>
+{% endblock %}

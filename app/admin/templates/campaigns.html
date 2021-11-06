@@ -1,0 +1,153 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+{% include "topbar.html" %}
+{% endblock %}
+
+{% block menu %}
+{% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Heading -->
+<h1 class="h3 mb-2 text-gray-800">Administración - Campañas</h1>
+<p class="mb-4"><a href="{{ url_for('admin.campaigns') }}">Campañas</a></p>
+
+<a href="{{ url_for('admin.campaigns_register') }}" class="btn btn-primary btn-icon-split btn-sm">
+   <span class="icon text-white-50">
+      <i class="fas fa-plus"></i>
+   </span>
+   <span class="text">Nueva Campaña</span>
+</a>
+
+<br><br>
+
+{% if campaign_delete_name %}
+<div class="alert alert-success" role="alert">
+    Se ha eliminado el registro <strong>{{commune_delete_name}}</strong> correctamente.
+</div>
+{% endif %}
+
+<!-- DataTales Example -->
+<div class="row">
+   <div class="col-lg-12">
+      <div class="card shadow mb-4">
+         <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Lista de campañas</h6>
+         </div>
+         <div class="card-body">
+            <div class="table-responsive">
+               <table class="table" id="dataTable" width="100%" cellspacing="0">
+                     <thead>
+                        <tr>
+                           <th>#</th>
+                           <th>Nombre</th>
+                           <th>Cliente</th>
+                           <th>Período</th>
+                           <th>Fecha creación</th>
+                           <th>Fecha finalización</th>
+                           <th>Hora finalización</th>
+                           <th>Usuario finalización</th>
+                           <th>Estado</th>
+                           <th></th>
+                        </tr>
+                     </thead>
+                     <tfoot>
+                        <tr>
+                           <th>#</th>
+                           <th>Nombre</th>
+                           <th>Cliente</th>
+                           <th>Período</th>
+                           <th>Fecha creación</th>
+                           <th>Fecha finalización</th>
+                           <th>Hora finalización</th>
+                           <th>Usuario finalización</th>
+                           <th>Estado</th>
+                           <th></th>
+                        </tr>
+                     </tfoot>
+                     <tbody>
+                        {% for campaign in campaigns %}
+                        <tr>
+                           <td>{{ loop.index }}</td>
+                           <td><a href="{{url_for('admin.campaigns_institutions', id=campaign.id)}}">{{ campaign.name }}</a></td>
+                           <td>{{ campaign.client_name }}</td>
+                           <td>{{ campaign.period }}</td>
+                           <td>
+                           {% if campaign.campaign_created %}
+                           {{ campaign.campaign_created | datefilter }}
+                           {% endif %}
+                           </td>
+                           <td>
+                              {% if campaign.created %}
+                              {{ campaign.created | datefilter }}
+                              {% endif %}
+                           </td>
+                           <td>
+                              {% if campaign.created %}
+                              {{ campaign.created | timefilter }}
+                              {% endif %}
+                           </td>
+                           <td>
+                              {% if campaign.created %}
+                              {{ campaign.user_name }} {{ campaign.user_lastname }}
+                              {% endif %}
+                           </td>
+                           <td>
+                              {% if campaign.active == True: %}
+                              <i class="fas fa-check-circle"></i>
+                              {% else: %}
+                              <i class="fas fa-times-circle"></i>
+                              {% endif %}
+                           </td>
+                           <td class="text-center">
+
+                              {% if(campaign.active) %}
+                              <a href="#" class="btn btn-danger btn-circle btn-sm" data-target="#modalFinishCampaign_{{campaign.id}}" data-toggle="modal">
+                                 <i class="fas fa-trash"></i>
+                              </a>
+                              {% endif %}
+
+                              <!-- Modal detalle del establecimiento -->
+                              <div class="modal fade " id="modalFinishCampaign_{{campaign.id}}" data-campaign="" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+                                 <div class="modal-dialog modal-dialog-scrollable modal-xl modal-dialog-centered" role="document">
+                                       <div class="modal-content">
+
+                                          <div class="modal-header">
+                                             <h5 class="modal-title" id="modalDetailInstitution">Finalizar campaña</h5>
+                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                             </button>
+                                          </div>
+
+                                          <div class="modal-body">
+                                             ¿Seguro que desea terminar la campaña <b>{{ campaign.name }}</b>?
+                                          </div>
+
+                                          {% if current_user.is_admin %}
+                                          <div class="modal-footer">
+                                             <a type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</a>
+                                             <form action="{{ url_for('admin.finish_campaign') }}" method="POST">
+                                                <input type="hidden" value="{{campaign.id}}" name="campaign">
+                                                <input type="hidden" value="{{current_user.id}}" name="user_id">
+                                                <button class="btn btn-primary">Finalizar campaña</a>
+                                             </form>
+                                          </div>
+                                          {% endif %}
+                                       </div>
+                                 </div>
+                              </div>
+                              <!-- Fin modal -->
+
+                           </td>
+                        </tr>
+                        {% endfor %}
+                     </tbody>
+               </table>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{% endblock %}

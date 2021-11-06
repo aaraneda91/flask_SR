@@ -1,0 +1,40 @@
+{% if current_user.is_admin == True %}
+    <div class="modal fade modaleditContact" id="modaleditContact" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content py-3 px-3">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Contacto</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="editContact" method='POST' action="{{ url_for('operacion.edit_contact') }}">
+                    <div class="modal-body">
+                        <input type="hidden" name="local_contact_id" value="">
+                        <div class="form-group row">
+                            <label for="message-text" class="col-form-label col-sm-2"><strong>Nombre:</strong></label>
+                            <input type="text" name="name" value="" class="form-control form-control-user col-sm-10" autocomplete="off">
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="message-text" class="col-form-label col-sm-2"><strong>Teléfono:</strong></label>
+                            <input type="text" name="phone" value="" class="form-control form-control-user col-sm-10" autocomplete="off">
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="message-text" class="col-form-label col-sm-2"><strong>Email:</strong></label>
+                            <input type="text" name="email" value="" class="form-control form-control-user col-sm-10" autocomplete="off">
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <div class="form-group row">
+                            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                        </div>
+                        <button class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}

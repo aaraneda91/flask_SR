@@ -1,0 +1,160 @@
+<!-- Sidebar -->
+<ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+   <!-- Sidebar - Brand -->
+   <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ url_for('config.index') }}">
+   <!--
+         <div class="sidebar-brand-icon rotate-n-15">
+            <i class="fas fa-laugh-wink"></i>
+         </div>-->
+         <div class="sidebar-brand-text mx-3">Sistema Respaldos</div>
+   </a>
+
+   <!-- Divider -->
+   <hr class="sidebar-divider my-0">
+
+   <!-- Nav Item - Dashboard -->
+   <li class="nav-item active">
+      <a class="nav-link" href="{{ url_for('dashboard.dashboard') }}">
+      <i class="fas fa-fw fa-tachometer-alt"></i>
+      <span>Dashboard</span></a>
+   </li>
+
+   <!-- Divider -->
+   <hr class="sidebar-divider">
+
+   <!-- Heading -->
+   <div class="sidebar-heading">
+         Menú
+   </div>
+
+   <!-- Operación -->
+
+   {% if current_user.is_admin == True %}
+   <li class="nav-item {% if institutions_module or clients_module or communes_module or regions_module or provinces_module %} active {% endif %}">
+         <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseAdmin"
+            aria-expanded="false" aria-controls="collapseUtilities">
+            <i class="fas fa-fw fa-wrench"></i>
+            <span>Administración</span>
+         </a>
+         <div id="collapseAdmin" class="collapse {% if institutions_module or 
+         clients_module or 
+         communes_module or 
+         campaigns_module or 
+         users_module or 
+         link_type_module or 
+         connection_type_module or 
+         link_module or 
+         regions_module or 
+         provinces_module or
+         mails_module %}show{% endif %}" aria-labelledby="headingUtilities"
+            data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+               <h6 class="collapse-header">Lista:</h6>
+               <!--<a class="collapse-item" href="{{ url_for('admin.users') }}">Usuarios</a>-->
+               <a class="collapse-item {% if campaigns_module %} active {% endif %}" href="{{ url_for('admin.campaigns') }}">Campañas</a>
+               <a class="collapse-item {% if clients_module %} active {% endif %}" href="{{ url_for('admin.clients') }}">Clientes</a>
+               <a class="collapse-item {% if communes_module %} active {% endif %}" href="{{ url_for('admin.communes') }}">Comunas</a>
+               <a class="collapse-item {% if link_module %} active {% endif %}" href="{{ url_for('admin.links') }}">Enlaces</a>
+               <a class="collapse-item {% if mails_module %} active {% endif %}" href="{{ url_for('admin.mails_list') }}">Envío correos</a>
+               <a class="collapse-item {% if institutions_module %} active {% endif %}" href="{{ url_for('admin.institutions') }}">Establecimientos</a>
+               <a class="collapse-item {% if provinces_module %} active {% endif %}" href="{{ url_for('admin.provinces') }}">Provincias</a>
+               <a class="collapse-item {% if regions_module %} active {% endif %}" href="{{ url_for('admin.regions') }}">Regiones</a>
+               <a class="collapse-item {% if connection_type_module %} active {% endif %}" href="{{ url_for('admin.connection_types') }}">Tipos de Conexión</a>
+               <a class="collapse-item {% if link_type_module %} active {% endif %}" href="{{ url_for('admin.link_types') }}">Tipos de Enlaces</a>
+               <a class="collapse-item {% if users_module %} active {% endif %}" href="{{ url_for('admin.users') }}">Usuarios</a>
+
+            </div>
+         </div>
+   </li>
+
+    <!-- Historial -->
+
+   <li class="nav-item">
+         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#menuLogsInstitutions"
+            aria-expanded="true" aria-controls="menuLogsInstitutions">
+            <i class="fas fa-fw fa-file-alt"></i>
+            <span>Historial</span>
+         </a>
+         <div id="menuLogsInstitutions" class="collapse {% if menu_logs %} show {% endif %}" aria-labelledby="headingUtilities"
+            data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+               <a class="collapse-item {% if menu_logs_institutions %} active {% endif %}" href="{{ url_for('admin.logs_institutions') }}">Establecimientos</a>
+               <a class="collapse-item {% if menu_logs_campaigns %} active {% endif %}" href="{{ url_for('admin.logs_campaigns') }}">Campañas finalizadas</a>
+            </div>
+         </div>
+   </li>
+   {% endif %}
+
+   <!-- Operación -->
+
+   <li class="nav-item">
+         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
+            aria-expanded="true" aria-controls="collapseUtilities">
+            <i class="fas fa-fw fa-wrench"></i>
+            <span>Operación</span>
+         </a>
+         <div id="collapseUtilities" class="collapse {% if phase1 or phase2 or phase3 or phase4 or phase5 %} show {% endif %}" aria-labelledby="headingUtilities"
+            data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+               <h6 class="collapse-header">Etapas:</h6>
+               <a class="collapse-item {% if phase1 %} active {% endif %}" href="{{ url_for('operacion.phase1') }}">Gestión</a>
+               <a class="collapse-item {% if phase2 %} active {% endif %}" href="{{ url_for('operacion.phase2') }}">Revisión</a>
+               <a class="collapse-item {% if phase3 %} active {% endif %}" href="{{ url_for('operacion.phase3') }}">Coordinación</a>
+               <a class="collapse-item {% if phase4 %} active {% endif %}" href="{{ url_for('operacion.phase4') }}">Ejecución</a>
+               <a class="collapse-item {% if phase5 %} active {% endif %}" href="{{ url_for('operacion.phase5') }}">Terminados</a>
+            </div>
+         </div>
+   </li>
+
+   <!-- Divider -->
+   <hr class="sidebar-divider">
+
+   <!--
+   <div class="sidebar-heading">
+         Reportería
+   </div>-->
+ 
+   <li class="nav-item {% if reports_module %} active {% endif %}">
+      <a class="nav-link" 
+      href="{{ url_for('config.users') }}" 
+      data-toggle="collapse" 
+      data-target="#collapseReports"
+      aria-expanded="false" 
+      aria-controls="collapseUtilities">
+         <i class="fas fa-fw fa-table"></i>
+         <span>Reportería</span>
+      </a>
+      
+      <div id="collapseReports" 
+      class="collapse {% if reports_module %} show {% endif %}" aria-labelledby="headingUtilities"
+      data-parent="#accordionSidebar">
+         <div class="bg-white py-2 collapse-inner rounded">
+            <a class="collapse-item {% if reports_institution_module %} active {% endif %}" href="{{ url_for('reports.report_states_institutions') }}">Establecimientos</a>
+         </div>
+   </li>
+  <!--
+   Divider
+   <hr class="sidebar-divider d-none d-md-block"> -->
+
+   <!-- Heading
+   <div class="sidebar-heading">
+      Históricos
+   </div>
+
+   Nav Item - Tables
+   <li class="nav-item">
+      <a class="nav-link" href="{{ url_for('config.users') }}">
+         <i class="fas fa-fw fa-table"></i>
+         <span>Estados establecimientos</span></a>
+   </li>
+
+   Divider
+   <hr class="sidebar-divider d-none d-md-block">
+
+   Sidebar Toggler (Sidebar) -->
+   <div class="text-center d-none d-md-inline">
+         <button class="rounded-circle border-0" id="sidebarToggle"></button>
+   </div>
+</ul>
+<!-- End of Sidebar -->

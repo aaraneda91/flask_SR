@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+{% include "topbar.html" %}
+{% endblock %}
+
+{% block menu %}
+{% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<h1 class="h3 mb-2 text-gray-800">Administración - Clientes</h1>
+<p class="mb-4">
+   <a href="{{ url_for('admin.clients') }}">Clientes</a> / 
+   <a href="{{ url_for('admin.clients_register') }}"> Registrar</a>
+</p>
+
+<div class="card o-hidden border-0 shadow-lg my-5">
+   <div class="card-body p-0">
+      <div class="row">
+         <div class="col-lg-2 d-none d-lg-block"></div>
+         <div class="col-lg-7">
+            <div class="p-5">
+               <div class="text-center">
+                  <h1 class="h4 text-gray-900 mb-4">Nuevo cliente</h1>
+               </div>
+               <form class="user text-center" action="{{ url_for('admin.clients_register') }}" method="POST">
+                  {{ form.hidden_tag() }}
+
+                  <div class="form-group row text-left">
+                     <div class="col-sm-6 mb-3 mb-sm-0">
+                        <label for="name" class="col-form-label col-sm-6">Nombre</label>
+                        {{ render_field(form.name, class="form-control form-control-user", id="name") }}
+                     </div>
+                     <div class="col-sm-6 mb-3 mb-sm-0">
+                        <label for="categories" class="col-form-label col-sm-6">Categoria</label>
+                        {{ render_field(form.categories, class="form-control form-control-user", id="categories") }}
+                     </div>
+                  </div>
+
+                  <div class="form-group row text-left">
+                     <div class="col-sm-6 mb-3 mb-sm-0">
+                        <label for="directors" class="col-form-label col-sm-6">Director de servicios</label>
+                        {{ render_field(form.directors, class="form-control form-control-user", id ="directors", placeholder="Nombre") }}
+                     </div>
+                  </div>
+
+                  <button class="btn btn-primary btn-user btn-block">Registrar</button>
+               </form>
+            </div>
+         </div>
+         <div class="col-lg-2 d-none d-lg-block"></div>
+      </div>
+   </div>
+</div>
+
+{% endblock %}

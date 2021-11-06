@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+{% include "topbar.html" %}
+{% endblock %}
+
+{% block menu %}
+{% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<style>
+table.reports.dataTable td, th{
+  font-size: 0.8em;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 0.2em;
+  padding-right: 0.2em;
+}
+</style>
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Historial - Campañas</h1>
+    
+</div>
+
+<!-- DataTales Example -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Campañas</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered reports" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Campaña</th>
+                        <th>Usuario</th>
+                        <th>Actualizado</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Campaña</th>
+                        <th>Usuario</th>
+                        <th>Actualizado</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    {% for row in campaigns %}
+                            <tr>
+                                <td>{{ row.campaign.name }}</td>
+                                <td>{{ row.user.name }}</td>
+                                <td>{{ row.created | datefilter }} ({{ row.created | timefilter }})</td>
+                            </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

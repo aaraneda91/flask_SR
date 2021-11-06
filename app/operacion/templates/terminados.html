@@ -1,0 +1,155 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+{% include "topbar.html" %}
+{% endblock %}
+
+{% block menu %}
+{% include "menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <ul class="nav nav-tabs card-header-tabs nav-fill">
+            <li class="nav-item">
+                <a class="nav-link {{phase1}}" href="{{ url_for('operacion.phase1') }}">Gestión</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{phase2}}" href="{{ url_for('operacion.phase2') }}">Revisión</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{phase3}}" href="{{ url_for('operacion.phase3') }}">Coordinación</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{phase4}}" href="{{ url_for('operacion.phase4') }}">Ejecución</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{phase5}}" href="{{ url_for('operacion.phase5') }}">Terminados</a>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Establecimiento</th>
+                        <th>Comuna</th>
+                        <th>Estado</th>
+                        <th>Dias Estado</th>
+                        <th>Contacto local</th>
+                        <th>Usuario</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Establecimiento</th>
+                        <th>Comuna</th>
+                        <th>Estado</th>
+                        <th>Dias Estado</th>
+                        <th>Contacto local</th>
+                        <th>Usuario</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    {% for campaign in campaigns %}
+                    <tr>
+                        <td>{{campaign.institution.client}}</td>
+                        <td>{{campaign.institution.name}}</td>
+                        <td>{{campaign.institution.commune}}</td>
+                        <td>{{campaign.institution.status}}</td>
+                        <td>
+                            {% for date_status in campaign.log_institution_status %}
+                            {% if loop.last %}
+                            {{date_status.return_days(date_status.created)}}
+                            {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{% if campaign.local_contact_id %} {{campaign.local_contact.name}} {% endif %}</td>
+                        <td>{% for date_status in campaign.log_institution_status %}
+                            {% if loop.last %}
+                            {{date_status.user}}
+                            {% endif %}
+                            {% endfor %}</td>
+                        <td>
+                            <a href="#" class="btn btn-warning" data-toggle="modal" data-target="#modalDetailInstitution_{{ campaign.institution.id }}" title="Ver Detalle">
+                                <i class="fas fa-edit fa-sm"></i>
+                            </a>
+
+                            <!-- Modal detalle establecimiento -->
+
+                            <div class="modal fade modaldetailinstitution" id="modalDetailInstitution_{{ campaign.institution.id }}" data-campaign="{{campaign.institution.id}}" tabindex="-1" role="dialog" aria-labelledby="modalDetailInstitution_{{ campaign.institution.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-scrollable modal-xl modal-dialog-centered" role="document">
+                                    <div class="modal-content py-3 px-3">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="modalDetailInstitution_{{ campaign.institution.id }}">{{campaign.institution.name}}</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            {% with institution=campaign.institution %}
+                                            {% include "institution_data_table.html" %}
+                                            {% endwith %}
+
+                                            {% if current_user.is_admin or current_user.category.name in ('agente_mda_back', 'jefe_mda') %}
+                                            <form method='POST' action="{{ url_for('operacion.change_status_post') }}">
+
+                                                <input type='hidden' name='institution' value='{{ campaign.institution.id }}' id="id_institution_{{ campaign.institution.id }}">
+                                                <input type='hidden' name='institution_campaign' value='{{ campaign.id }}'>
+
+                                                <div class="form-group row">
+                                                    <div class="col-md-6">
+                                                        <label for="status" class="col-form-label">Estado de prueba</label>
+                                                        <select name='status' class="form-control form-control-user" autocomplete="off" id="select_exitoso_observaciones_{{campaign.institution.id}}">
+                                                            <option> -- </option>
+                                                            <option value="1">Por gestionar</option>
+                                                            <option value="10">Exitoso</option>
+                                                            <option value="14">Exitoso con observaciones</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-2 align-self-end">
+                                                        <input type="submit" class="btn btn-primary" value="Confirmar">
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row" id="required_comment_{{ campaign.institution.id }}" style="display:none">
+                                                    <div class="col-md-6">
+                                                        <label for="status" class="col-form-label">Observación (campo obligatorio)</label>
+                                                        <textarea class="form-control form-control-user" id="required_comment_{{ campaign.institution.id }}" name="required_comment"></textarea>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                            {% endif %}
+
+                                            {% include "extras.html" %}
+
+                                        </div>
+                                        <div class="modal-footer">
+                                            <a type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Fin modal -->
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+    {% include "scripts.html" %}
+{% endblock %}
